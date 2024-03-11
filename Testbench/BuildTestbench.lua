@@ -1,18 +1,22 @@
 
-project "NuiConsole"
-    kind "ConsoleApp"
+project "Testbench"
+    kind "WindowedApp"
     language "C++"
     cppdialect "C++latest"
 
     targetdir "%{wks.location}/Build/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
-    objdir "%{wks.location}/Build/Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/%{prj.name}"
-    targetname "NuiCore"
+    objdir "%{wks.location}/Build/Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
+    targetname "Testbench"
 
-    location "%{wks.location}/Engine/Console/"
-    
+    location "D:/ARNAV/DEV/CPP/NuiEngine/Testbench"
+    links
+    {
+        "NuiCore"
+    }
+
     includedirs 
     {
-        "%{prj.location}/",
+        "%{wks.location}/Engine/",
     }
 
     files

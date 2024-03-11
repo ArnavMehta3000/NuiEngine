@@ -4,8 +4,8 @@ project "NuiCore"
     language "C++"
     cppdialect "C++latest"
 
-    targetdir "%{wks.location}/Build/%{cfg.architecture}-%{cfg.buildcfg}"
-    objdir "%{wks.location}/Build/Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}"
+    targetdir "%{wks.location}/Build/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
+    objdir "%{wks.location}/Build/Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
     targetname "NuiCore"
 
     location "%{wks.location}/Engine/Core/"
@@ -17,6 +17,7 @@ project "NuiCore"
     includedirs 
     {
         "%{prj.location}/",
+        "%{prj.location}/../",
     }
 
     files
