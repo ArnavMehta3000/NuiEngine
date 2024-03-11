@@ -3,7 +3,10 @@
 
 namespace Nui::Log
 {
-	// Enum class the defines log verbosity
+	/*
+    * @brief Log verbosity levels
+    * @see LogEntry
+    */
 	enum class LogLevel
 	{
 		Debug = 0,   // For low level engine information
@@ -17,6 +20,7 @@ namespace Nui::Log
     /**
  * @class LogEntry
  * @brief Represents a log entry with its level, category, message, time, and stack trace.
+ * @see LogLevel
  */
     struct LogEntry 
     {
@@ -26,6 +30,7 @@ namespace Nui::Log
          * @param category The log category
          * @param message The log message
          * @param trace The stack trace
+         * @see LogLevel
          */
         LogEntry(LogLevel level, StringView category, StringView message, Nui::Stacktrace trace = Nui::Stacktrace::current());
 
@@ -57,6 +62,8 @@ namespace Nui::Log
 
     /**
     * @brief Logs a log entry to the VS output window.
+    * @param entry The log entry
+    * @see LogEntry
     */
 	void Log(const LogEntry& entry);
 
