@@ -398,4 +398,5 @@ FodyWeavers.xsd
 # Remove this when using your own repo so that you don't have to generate project files again
 *.sln
 *.vcxproj
+*.vcxproj.filters
 premake5.lua
