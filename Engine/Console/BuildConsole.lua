@@ -1,22 +1,18 @@
 
-project "%PROJECT_NAME%"
-    kind "WindowedApp"
+project "NuiConsole"
+    kind "ConsoleApp"
     language "C++"
     cppdialect "C++latest"
 
-    targetdir "%{wks.location}/Build/%{cfg.architecture}-%{cfg.buildcfg}/"
+    targetdir "%{wks.location}/Build/%{cfg.architecture}-%{cfg.buildcfg}"
     objdir "%{wks.location}/Build/Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}"
-    targetname "%PROJECT_NAME%"
+    targetname "NuiCore"
 
-    location "%PROJECT_DIR%"
-    links
-    {
-        "NuiCore"
-    }
-
+    location "%{wks.location}/Engine/Console/"
+    
     includedirs 
     {
-        "%{wks.location}/Engine/",
+        "%{prj.location}/",
     }
 
     files

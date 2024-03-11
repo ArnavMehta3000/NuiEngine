@@ -1,21 +1,20 @@
-workspace "{0}"
-    configurations {{ "Debug", "Release", "Shipping" }}
-    startproject "CloneEngineRuntime"
+workspace "%SOLUTION_NAME%"
+    configurations { "Debug", "Release", "Shipping" }
+    startproject "%PROJECT_NAME%"
     architecture "x64"
-    location "{1}"
+    location "%ROOT_DIR%"
 
     filter "system:windows"
         buildoptions {{ "/EHsc", "/Zc:preprocessor", "/Zc:__cplusplus" }}
 
-group "Core"
-    include "{1}/Runtime/BuildRuntime.lua"
-    include "{1}/Engine/BuildEngine.lua"
+group "Engine"
+    include "%ROOT_DIR%/Engine/Core/BuildCore.lua"
+    --include "%ROOT_DIR%/Engine/Audio/BuildAudio.lua"
+    include "%ROOT_DIR%/Engine/Console/BuildConsole.lua"
+    --include "%ROOT_DIR%/Engine/Graphics/BuildGraphics.lua"
+    --include "%ROOT_DIR%/Engine/Test/BuildTest.lua"
 group ""
 
 group "Game"
-    include "{1}/{0}/Build{0}.lua"
-group ""
-
-group "External"
-    -- Add external projects here
+    include "%PROJECT_DIR%/Build%PROJECT_NAME%.lua"
 group ""
