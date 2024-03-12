@@ -8,7 +8,7 @@ project "Testbench"
     objdir "%{wks.location}/Build/Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
     targetname "Testbench"
 
-    location "D:/ARNAV/DEV/CPP/NuiEngine/Testbench"
+    location "E:/Dev/NuiEngine/Testbench"
     links
     {
         "NuiCore"
