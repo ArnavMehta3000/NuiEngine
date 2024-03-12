@@ -18,6 +18,9 @@ namespace Nui
 	using U32 = uint32_t;
 	using U64 = uint64_t;
 
+	using U32Max = uintmax_t;
+	using I32Max = intmax_t;
+
 	using F32 = float;
 	using F64 = double;
 
