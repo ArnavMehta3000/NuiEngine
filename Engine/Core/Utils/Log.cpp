@@ -147,7 +147,7 @@ namespace Nui::Log
 	{
 		// TODO: Make logging multi-threaded		
 
-		String formattedMsg1 = std::format("{} [{}] ", GetCurrentTimestamp(entry.Time), LogLevelToString(entry.Level));
+		String formattedMsg1 = std::format("{} [{}] ", GetTimestamp(entry.Time), LogLevelToString(entry.Level));
 		if (entry.Level == LogLevel::Info || entry.Level == LogLevel::Warn)
 		{
 			formattedMsg1 += " ";
@@ -163,7 +163,7 @@ namespace Nui::Log
 		}
 	}
 
-	String GetCurrentTimestamp(const chrono::system_clock::time_point& timePoint)
+	String GetTimestamp(const chrono::system_clock::time_point& timePoint)
 	{
 		auto time = chrono::system_clock::to_time_t(timePoint);
 		auto ms = chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()) % 1000;
