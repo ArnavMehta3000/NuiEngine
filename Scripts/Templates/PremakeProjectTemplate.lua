@@ -4,8 +4,11 @@ project "%PROJECT_NAME%"
     language "C++"
     cppdialect "C++latest"
 
-    targetdir "%{wks.location}/Build/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
-    objdir "%{wks.location}/Build/Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
+    local baseDir = "%{wks.location}/Build/"
+
+    targetdir(baseDir .. "%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
+    objdir(baseDir .. "Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
+    debugdir(baseDir .. "%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
     targetname "%PROJECT_NAME%"
 
     location "%PROJECT_DIR%"

@@ -3,9 +3,11 @@ project "NuiCore"
     kind "StaticLib"
     language "C++"
     cppdialect "C++latest"
+    local baseDir = "%{wks.location}/Build/"
 
-    targetdir "%{wks.location}/Build/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
-    objdir "%{wks.location}/Build/Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/"
+    targetdir(baseDir .. "%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
+    objdir(baseDir .. "Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
+    debugdir(baseDir .. "%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
     targetname "NuiCore"
 
     location "%{wks.location}/Engine/Core/"
