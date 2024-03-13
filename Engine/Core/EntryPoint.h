@@ -10,11 +10,19 @@
 
 #include <Windows.h>
 #include <Core/Utils/Filesystem.h>
+#include <Core/App/AppBase.h>
 
-// TODO: Add command line arguments to be passed to the engine
-extern int NuiMain();
+namespace Nui::Internal
+{
+	extern std::unique_ptr<Nui::AppBase> MakeApp();
+}
 
-#define NUI_MAIN() int NuiMain()
+#define NUI_DECLARE_APP(app)                              \
+std::unique_ptr<Nui::AppBase> Nui::Internal::MakeApp()    \
+{                                                         \
+	return std::make_unique<app>();                       \
+}
+
 
 // Write the windows main function
 int WINAPI wWinMain(
@@ -26,15 +34,22 @@ int WINAPI wWinMain(
 {
 	Nui::Log::Internal::OpenGlobalLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Nui.log");
 	
+	std::unique_ptr<Nui::AppBase> app = Nui::Internal::MakeApp();
+
 	try
 	{
-		return NuiMain();
+		while (!app->WantsToClose())
+		{
+			
+		}
 	}
 	catch (const std::exception& e)
 	{
+		app.reset();
 		NUI_LOG(Exception, Main, e.what());
 	}
 
+	app.reset();
 	Nui::Log::Internal::CloseGlobalLogFile();
 
 	return 0;

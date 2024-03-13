@@ -1,7 +1,9 @@
 #include <Core/EntryPoint.h>
 
-NUI_MAIN()
+
+class TestApp : public Nui::AppBase
 {
 
-	return 0;
-}
+};
+
+NUI_DECLARE_APP(TestApp)
