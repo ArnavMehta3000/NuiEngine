@@ -18,7 +18,7 @@ namespace Nui
 		return fs::is_regular_file(path);
 	}
 
-	bool Filesystem::CreateDirectory(const fs::path& path)
+	bool Filesystem::MakeDirectory(const fs::path& path)
 	{
 		return fs::create_directories(path);
 	}

@@ -36,7 +36,7 @@ namespace Nui
 		* @param path Path to create
 		* @return True if directory was created or already exists
 		*/
-		static bool CreateDirectory(const fs::path& path);
+		static bool MakeDirectory(const fs::path& path);
 
 		/**
 		* @brief Delete directory
