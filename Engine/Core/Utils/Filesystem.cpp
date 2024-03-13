@@ -73,4 +73,4 @@ namespace Nui
 
 		return ss.str();
 	}
-}
+}  // namespace Nui
