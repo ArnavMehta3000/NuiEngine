@@ -127,6 +127,10 @@ namespace Nui::Log
 	void Log(const LogEntry& entry);
 
 	/**
+	*/
+	String GetTimestamp(const chrono::system_clock::time_point& timePoint = chrono::system_clock::now());
+
+	/**
 	* @brief Asserts a condition and logs an error if it is not met.
 	* @param condition The condition to assert
 	* @param conditionString The string representation of the condition

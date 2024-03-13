@@ -1,5 +1,6 @@
 #include "Log.h"
 #include "Core/Common/NuiWin.h"
+#include "Core/Utils/Filesystem.h"
 #include <format>
 #include <stdexcept>
 
@@ -79,6 +80,8 @@ namespace Nui::Log
 			// std::trunc to override log file if it already exists
 			m_file.open(path, std::ios::out | std::ios::trunc);
 
+			NUI_LOG(Debug, Log, "Opened log file: " + path.string());
+
 			NUI_ASSERT(m_file.is_open(), "Failed to open log file!");
 		}
 
@@ -116,6 +119,12 @@ namespace Nui::Log
 
 		void OpenGlobalLogFile(const fs::path& path)
 		{
+			// Create parent directory if it doesn't exist
+			if (!Filesystem::Exists(path.parent_path()))
+			{
+				Nui::Filesystem::MakeDirectory(path.parent_path());
+				NUI_LOG(Debug, Log, "Created log directory: " + path.parent_path().string());
+			}
 			g_logFile = std::make_unique<LogFile>(path);
 		}
 
@@ -136,20 +145,9 @@ namespace Nui::Log
 
 	void Log(const LogEntry& entry)
 	{
-		// TODO: Make logging multi-threaded
-		// TODO: Add log file
+		// TODO: Make logging multi-threaded		
 
-		auto time  = std::chrono::system_clock::to_time_t(entry.Time);
-		auto ms    = std::chrono::duration_cast<std::chrono::milliseconds>(entry.Time.time_since_epoch()) % 1000;
-		auto msInt = static_cast<int>(ms.count());
-
-		std::tm tm;
-		localtime_s(&tm, &time);
-
-		String formattedTime = std::format("[{:02d}.{:02d}.{:02d}.{:03d}]",
-			tm.tm_hour, tm.tm_min, tm.tm_sec, msInt);
-
-		String formattedMsg1 = std::format("{} [{}] ", formattedTime, LogLevelToString(entry.Level));
+		String formattedMsg1 = std::format("{} [{}] ", GetCurrentTimestamp(entry.Time), LogLevelToString(entry.Level));
 		if (entry.Level == LogLevel::Info || entry.Level == LogLevel::Warn)
 		{
 			formattedMsg1 += " ";
@@ -163,6 +161,19 @@ namespace Nui::Log
 		{
 			PrintStackTrace(entry.Stacktrace);
 		}
+	}
+
+	String GetCurrentTimestamp(const chrono::system_clock::time_point& timePoint)
+	{
+		auto time = chrono::system_clock::to_time_t(timePoint);
+		auto ms = chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()) % 1000;
+		auto msInt = static_cast<int>(ms.count());
+
+		std::tm tm;
+		localtime_s(&tm, &time);
+
+		return std::format("[{:02d}.{:02d}.{:02d}.{:03d}]",
+			tm.tm_hour, tm.tm_min, tm.tm_sec, msInt);
 	}
 
 	void Assert(bool condition, StringView conditionString, StringView message, StringView file, I32 line, Nui::Stacktrace trace)
