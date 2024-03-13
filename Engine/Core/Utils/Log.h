@@ -1,9 +1,68 @@
 #pragma once
 #include "Core/Common/Types.h"
+#include <fstream>
 
 namespace Nui::Log
 {
-	/*
+	namespace Internal
+	{
+		/**
+		* @brief Represents a log file
+		*/
+		class LogFile
+		{
+		public:
+			LogFile() = default;
+
+			/*
+			* @brief Constructor for LogFile - Opens the log file
+			* @param path The path to the log file
+			*/
+			LogFile(const fs::path& path);
+
+			/*
+			* @brief Destructor for LogFile - Closes the log file
+			*/
+			~LogFile();
+
+			/*
+			* @brief Writes a message to the log file
+			* @param message The message to write
+			*/
+			void Write(const String& message);
+
+			/*
+			* @brief Flushes the log file buffer
+			*/
+			void Flush();
+
+		private:
+			/*
+			* @brief The path to the log file
+			*/
+			String m_path;
+
+			/*
+			* @brief The log file stream
+			*/
+			std::ofstream m_file;
+		};
+
+		/**
+		* @brief Opens the global log file
+		* @param path The path to the log file
+		*/
+		void OpenGlobalLogFile(const fs::path& path);
+
+		/**
+		* @brief Closes the global log file
+		* @note It's fine if this function is not called since the log file is automatically closed when the program exits
+		*/
+		void CloseGlobalLogFile();
+
+	}  // namespace Internal
+
+	/**
 	* @brief Log verbosity levels
 	* @see LogEntry
 	*/
@@ -18,10 +77,10 @@ namespace Nui::Log
 	};
 
 	/**
- * @class LogEntry
- * @brief Represents a log entry with its level, category, message, time, and stack trace.
- * @see LogLevel
- */
+	 * @class LogEntry
+	 * @brief Represents a log entry with its level, category, message, time, and stack trace.
+	 * @see LogLevel
+	 */
 	struct LogEntry 
 	{
 		/**
@@ -67,7 +126,7 @@ namespace Nui::Log
 	*/
 	void Log(const LogEntry& entry);
 
-	/*
+	/**
 	* @brief Asserts a condition and logs an error if it is not met.
 	* @param condition The condition to assert
 	* @param conditionString The string representation of the condition
@@ -78,7 +137,7 @@ namespace Nui::Log
 	* @throws std::runtime_error if the condition is not met
 	*/
 	void Assert(bool condition, StringView conditionString, StringView message, StringView file, I32 line, Nui::Stacktrace trace = Nui::Stacktrace::current());
-}
+}  // namespace Nui::Log
 
 #define NUI_LOG(Level, Category, Message) Nui::Log::Log(Nui::Log::LogEntry(Nui::Log::LogLevel::Level, #Category, Message))
 

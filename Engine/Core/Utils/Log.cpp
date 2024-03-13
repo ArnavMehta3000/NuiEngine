@@ -7,6 +7,24 @@ namespace Nui::Log
 {
 	namespace  // Anonymous namespace
 	{
+		// Global log file
+		std::unique_ptr<Internal::LogFile> g_logFile{ nullptr };
+
+
+		/*
+		* @brief Log message to output window
+		* @param message Message to log
+		*/
+		void LogAll(const String& message)
+		{
+			OutputDebugStringA(message.c_str());
+
+			if (g_logFile)
+			{
+				g_logFile->Write(message);
+			}
+		}
+
 		/*
 		* @brief Convert log level to string
 		* @param level Log level
@@ -40,17 +58,73 @@ namespace Nui::Log
 		*/
 		void PrintStackTrace(const Nui::Stacktrace& stacktrace)
 		{
-			OutputDebugStringA("\n ----- Begin Stack trace -----\n");
+			LogAll("\n ----- Begin Stack trace -----\n");
 			for (auto& trace : stacktrace)
 			{
-				OutputDebugStringA((trace.description() + "\n").c_str());
-				OutputDebugStringA(std::format("{}({})\n", 
-					trace.source_file(), trace.source_line()).c_str());
-				OutputDebugStringA("------------------------------------\n");
+				LogAll((trace.description() + "\n"));
+				LogAll(std::format("{}({})\n",
+					trace.source_file(), trace.source_line()));
+				LogAll("------------------------------------\n");
 			}
-			OutputDebugStringA("\n ----- End Stack trace -----\n");
+			LogAll("\n ----- End Stack trace -----\n");
 		}
 	}  // Anonymous namespace
+
+
+	namespace Internal
+	{
+		LogFile::LogFile(const fs::path& path)
+			: m_path(path.string())
+		{
+			// std::trunc to override log file if it already exists
+			m_file.open(path, std::ios::out | std::ios::trunc);
+
+			NUI_ASSERT(m_file.is_open(), "Failed to open log file!");
+		}
+
+		LogFile::~LogFile()
+		{
+			if (m_file.is_open())
+			{
+				m_file.close();
+			}
+		}
+
+		void LogFile::Write(const String& message)
+		{
+			if (m_file.is_open())
+			{
+				m_file << message;
+			}
+			else
+			{
+				NUI_ASSERT(false, "Attempted to log to closed file!");
+			}
+		}
+
+		void LogFile::Flush()
+		{
+			if (m_file.is_open())
+			{
+				m_file.flush();
+			}
+			else
+			{
+				NUI_ASSERT(false, "Attempted to flush closed file!");
+			}
+		}
+
+		void OpenGlobalLogFile(const fs::path& path)
+		{
+			g_logFile = std::make_unique<LogFile>(path);
+		}
+
+		void CloseGlobalLogFile()
+		{
+			g_logFile.reset();
+		}
+	}  // namespace Internal
+
 
 	LogEntry::LogEntry(LogLevel level, StringView category, StringView message, Nui::Stacktrace trace)
 		: Level(level)
@@ -82,7 +156,7 @@ namespace Nui::Log
 		}
 		String formattedMsg2 = std::format("[{}] - {}\n", entry.Category, entry.Message);
 
-		OutputDebugStringA((formattedMsg1 + formattedMsg2).c_str());
+		LogAll(formattedMsg1 + formattedMsg2);
 
 		// Only print stack trace on fatal errors
 		if (entry.Level == LogLevel::Fatal)
@@ -106,4 +180,4 @@ namespace Nui::Log
 			throw std::runtime_error("Assertion failed");
 		}
 	}
-}
+}  // namespace Nui::Log
