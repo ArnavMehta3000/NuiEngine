@@ -9,7 +9,7 @@
 #pragma warning(pop)
 
 #include <Windows.h>
-#include <Core/Common/CommonHeaders.h>
+#include <Core/Utils/Filesystem.h>
 
 // TODO: Add command line arguments to be passed to the engine
 extern int NuiMain();
@@ -24,6 +24,8 @@ int WINAPI wWinMain(
 	_In_     int nShowCmd
 )
 {
+	Nui::Log::Internal::OpenGlobalLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Nui.log");
+	
 	try
 	{
 		return NuiMain();
@@ -32,6 +34,8 @@ int WINAPI wWinMain(
 	{
 		NUI_LOG(Exception, Main, e.what());
 	}
+
+	Nui::Log::Internal::CloseGlobalLogFile();
 
 	return 0;
 }
