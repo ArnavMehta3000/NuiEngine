@@ -32,12 +32,12 @@ int WINAPI wWinMain(
 	_In_     int nShowCmd
 )
 {
-	Nui::Log::Internal::OpenGlobalLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Nui.log");
-	
-	std::unique_ptr<Nui::AppBase> app = Nui::Internal::MakeApp();
+	std::unique_ptr<Nui::AppBase> app{ nullptr };
 
 	try
 	{
+		Nui::Log::Internal::OpenGlobalLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "Nui.log");
+		app = Nui::Internal::MakeApp();
 		while (!app->WantsToClose())
 		{
 			
