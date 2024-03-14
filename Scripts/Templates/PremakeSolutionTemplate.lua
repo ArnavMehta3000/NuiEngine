@@ -12,7 +12,7 @@ group "Engine"
     --include "%ROOT_DIR%/Engine/Audio/BuildAudio.lua"
     include "%ROOT_DIR%/Engine/Console/BuildConsole.lua"
     --include "%ROOT_DIR%/Engine/Graphics/BuildGraphics.lua"
-    --include "%ROOT_DIR%/Engine/Test/BuildTest.lua"
+    include "%ROOT_DIR%/Engine/Test/BuildTest.lua"
 group ""
 
 group "Game"
