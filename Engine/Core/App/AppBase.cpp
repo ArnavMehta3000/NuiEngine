@@ -3,8 +3,8 @@
 namespace Nui
 {
 	AppBase::AppBase()
-		:
-		Window(Window::Style::WindowedFullscreen, { 1280, 720}, { 500, 250 }, L"NuiApp")
+		: Window(Window::Style::WindowedFullscreen, { 1280, 720}, { 500, 250 }, L"NuiApp")
+		, m_wantsToClose(false)
 	{
 
 	}
@@ -12,4 +12,16 @@ namespace Nui
 	AppBase::~AppBase()
 	{
 
-	}}
+	}
+
+	void AppBase::Run()
+	{
+		while (!m_wantsToClose && !Window::WantsToClose())
+		{
+		}
+	}
+	void AppBase::Quit()
+	{
+		m_wantsToClose = true;
+	}
+}

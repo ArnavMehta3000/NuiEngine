@@ -10,6 +10,11 @@ namespace Nui
 		AppBase();
 		virtual ~AppBase();
 
+		void Run();
+		void Quit();
+
+	private:
+		bool m_wantsToClose;
 	};
 }
 
