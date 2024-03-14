@@ -20,7 +20,7 @@ namespace Nui::Engine
 		return true;
 	}
 
-	void Update()
+	void MainLoop()
 	{
 		while (!app->WantsToClose())
 		{
