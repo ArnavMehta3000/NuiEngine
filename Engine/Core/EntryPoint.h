@@ -32,7 +32,7 @@ int WINAPI wWinMain(
 	{
 		NUI_ASSERT(Nui::Engine::Init(), "Failed to initialize engine");
 		Nui::Engine::MainLoop();
-		Nui::Engine::Shutdown();		
+		Nui::Engine::Shutdown();
 	}
 	catch (const std::exception& e)
 	{
