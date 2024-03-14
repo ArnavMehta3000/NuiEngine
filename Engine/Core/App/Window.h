@@ -73,7 +73,7 @@ namespace Nui
 		* @param position Window position
 		* @param title Window title
 		*/
-		explicit Window(Window::Style style, Window::Size size, Window::Position position, StringW title);
+		explicit Window(Window::Style style, StringViewW title, Window::Size size = { 1280, 720 }, Window::Position position = { 500, 250 });
 		
 		/**
 		* @brief Destroy the window

@@ -30,7 +30,7 @@ namespace Nui
 	using StringView = std::string_view;
 
 	using StringW = std::wstring;
-	using StringWView = std::wstring_view;
+	using StringViewW = std::wstring_view;
 	
 	using Stacktrace  = std::stacktrace;
 

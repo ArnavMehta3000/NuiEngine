@@ -77,11 +77,11 @@ namespace Nui
 
 	}  // Anonymous namespace
 
-	Window::Window(Window::Style style, Window::Size size, Window::Position position, StringW title)
+	Window::Window(Window::Style style, StringViewW title, Window::Size size, Window::Position position)
 		: m_style(style)
+		, m_title(title)
 		, m_size(size)
 		, m_position(position)
-		, m_title(title)
 		, m_hWnd(nullptr)
 		, m_hInstance(GetModuleHandle(NULL))
 	{

@@ -2,11 +2,10 @@
 
 namespace Nui
 {
-	AppBase::AppBase()
-		: Window(Window::Style::WindowedFullscreen, { 1280, 720}, { 500, 250 }, L"NuiApp")
+	AppBase::AppBase(StringViewW appName, Window::Style style, Window::Size size, Window::Position position)
+		: Window(style, appName, size, position)
 		, m_wantsToClose(false)
 	{
-
 	}
 
 	AppBase::~AppBase()
