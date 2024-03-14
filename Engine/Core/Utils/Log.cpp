@@ -118,7 +118,7 @@ namespace Nui::Log
 			}
 		}
 
-		void OpenGlobalLogFile(const fs::path& path)
+		void OpenLogFile(const fs::path& path)
 		{
 			// Create parent directory if it doesn't exist
 			if (!Filesystem::Exists(path.parent_path()))
@@ -129,7 +129,7 @@ namespace Nui::Log
 			g_logFile = std::make_unique<LogFile>(path);
 		}
 
-		void CloseGlobalLogFile()
+		void CloseLogFile()
 		{
 			g_logFile.reset();
 		}

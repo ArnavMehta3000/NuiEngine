@@ -52,13 +52,13 @@ namespace Nui::Log
 		* @brief Opens the global log file
 		* @param path The path to the log file
 		*/
-		void OpenGlobalLogFile(const fs::path& path);
+		void OpenLogFile(const fs::path& path);
 
 		/**
 		* @brief Closes the global log file
 		* @note It's fine if this function is not called since the log file is automatically closed when the program exits
 		*/
-		void CloseGlobalLogFile();
+		void CloseLogFile();
 
 	}  // namespace Internal
 

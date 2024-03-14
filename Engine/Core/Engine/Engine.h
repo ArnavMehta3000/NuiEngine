@@ -9,7 +9,10 @@ namespace Nui::Engine
 		extern std::unique_ptr<Nui::AppBase> MakeApp();
 	}
 
+	Nui::AppBase* const GetApp();
+	bool IsAppInitialized();
+
 	bool Init();
-	void Update();
+	void MainLoop();
 	void Shutdown();
 }

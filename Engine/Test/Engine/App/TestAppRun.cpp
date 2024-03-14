@@ -16,7 +16,7 @@ namespace EngineTest
 			std::unique_ptr<TestApp> app;
 			try
 			{
-				Nui::Log::Internal::OpenGlobalLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "TestAppRunWindowedForFiveSeconds.log");
+				Nui::Log::Internal::OpenLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "TestAppRunWindowedForFiveSeconds.log");
 
 				app = std::make_unique<TestApp>(Nui::Window::Style::Windowed);
 				std::jthread runThread = std::jthread([&app]() 
@@ -29,7 +29,7 @@ namespace EngineTest
 				app->Quit();
 				app.reset();
 
-				Nui::Log::Internal::CloseGlobalLogFile();
+				Nui::Log::Internal::CloseLogFile();
 
 			}
 			catch (const std::exception& e)
@@ -45,7 +45,7 @@ namespace EngineTest
 			std::unique_ptr<TestApp> app;
 			try
 			{
-				Nui::Log::Internal::OpenGlobalLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "TestAppRunWindowedFullscreenForFiveSeconds.log");
+				Nui::Log::Internal::OpenLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "TestAppRunWindowedFullscreenForFiveSeconds.log");
 
 				app = std::make_unique<TestApp>(Nui::Window::Style::WindowedFullscreen);
 				std::jthread runThread = std::jthread([&app]()
@@ -58,7 +58,7 @@ namespace EngineTest
 				app->Quit();
 				app.reset();
 
-				Nui::Log::Internal::CloseGlobalLogFile();
+				Nui::Log::Internal::CloseLogFile();
 
 			}
 			catch (const std::exception& e)
@@ -73,7 +73,7 @@ namespace EngineTest
 			std::unique_ptr<TestApp> app;
 			try
 			{
-				Nui::Log::Internal::OpenGlobalLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "TestAppRunBorderlessForFiveSeconds.log");
+				Nui::Log::Internal::OpenLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "TestAppRunBorderlessForFiveSeconds.log");
 
 				app = std::make_unique<TestApp>(Nui::Window::Style::Borderless);
 				std::jthread runThread = std::jthread([&app]()
@@ -86,7 +86,7 @@ namespace EngineTest
 				app->Quit();
 				app.reset();
 
-				Nui::Log::Internal::CloseGlobalLogFile();
+				Nui::Log::Internal::CloseLogFile();
 
 			}
 			catch (const std::exception& e)
@@ -101,7 +101,7 @@ namespace EngineTest
 			std::unique_ptr<TestApp> app;
 			try
 			{
-				Nui::Log::Internal::OpenGlobalLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "TestAppRunBorderlessFullscreenForFiveSeconds.log");
+				Nui::Log::Internal::OpenLogFile(Nui::Filesystem::GetCurrentWorkingDirectory() / "Saved" / "TestAppRunBorderlessFullscreenForFiveSeconds.log");
 
 				app = std::make_unique<TestApp>(Nui::Window::Style::BorderlessFullscreen);
 				std::jthread runThread = std::jthread([&app]()
@@ -114,7 +114,7 @@ namespace EngineTest
 				app->Quit();
 				app.reset();
 
-				Nui::Log::Internal::CloseGlobalLogFile();
+				Nui::Log::Internal::CloseLogFile();
 
 			}
 			catch (const std::exception& e)
