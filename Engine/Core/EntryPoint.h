@@ -30,7 +30,8 @@ int WINAPI wWinMain(
 {
 	try
 	{
-		NUI_ASSERT(Nui::Engine::Init(), "Failed to initialize engine");
+		bool result = Nui::Engine::Init();
+		NUI_ASSERT(result, "Failed to initialize engine");
 		Nui::Engine::MainLoop();
 		Nui::Engine::Shutdown();
 	}

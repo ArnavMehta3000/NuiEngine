@@ -5,7 +5,7 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace EngineTest
+namespace NuiCoreTest
 {
 	TEST_CLASS(TestAppRun)
 	{

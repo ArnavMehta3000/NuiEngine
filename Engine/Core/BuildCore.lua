@@ -27,6 +27,7 @@ project "NuiCore"
         "%{prj.location}/**.h",
         "%{prj.location}/**.hpp",
         "%{prj.location}/**.cpp",
+        "%{prj.location}/**.inl",
         "%{prj.location}/**.ixx",
     }
 
