@@ -68,12 +68,35 @@ namespace Nui::Log
 	*/
 	enum class LogLevel
 	{
-		Debug = 0,   // For low level engine information
-		Info,        // For general information
-		Warn,        // For warnings
-		Error,       // For errors
-		Fatal,       // Similar to errors, but gives a stack trace
-		Exception,   // Similar to errors, but gives a stack trace and crashes the program
+		/**
+		* @brief For low level engine information
+		*/
+		Debug = 0,
+
+		/**
+		* @brief For general information
+		*/
+		Info,
+
+		/**
+		* @brief For warnings
+		*/
+		Warn,
+
+		/**
+		* @brief For errors
+		*/
+		Error,
+
+		/**
+		* @brief Similar to error, also gives a stack trace
+		*/
+		Fatal,
+
+		/**
+		* @brief Similar to error, also gives a stack trace and crashes the program
+		*/
+		Exception,
 	};
 
 	/**

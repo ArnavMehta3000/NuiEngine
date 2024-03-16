@@ -8,7 +8,9 @@ namespace Nui::Log
 {
 	namespace  // Anonymous namespace
 	{
-		// Global log file
+		/**
+		* @brief Global log file
+		*/
 		std::unique_ptr<Internal::LogFile> g_logFile{ nullptr };
 
 
@@ -146,7 +148,8 @@ namespace Nui::Log
 
 	void Log(const LogEntry& entry)
 	{
-		// TODO: Make logging multi-threaded		
+		// TODO: Make logging multi-threaded	
+		// TODO: Log based on config or allow user to set print verbosity
 
 		String formattedMsg1 = std::format("{} [{}] ", GetTimestamp(entry.Time), LogLevelToString(entry.Level));
 		if (entry.Level == LogLevel::Info || entry.Level == LogLevel::Warn)

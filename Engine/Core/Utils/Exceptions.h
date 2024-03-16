@@ -4,6 +4,11 @@
 
 namespace Nui
 {
+	/**
+	* @brief Get Win32 error string from error code 
+	* @param errorCode Error code from GetLastError() to convert
+	* @return String representation of Win32 error
+	*/
 	inline String GetWin32ErrorString(DWORD errorCode)
 	{
 		char errorString[MAX_PATH];
