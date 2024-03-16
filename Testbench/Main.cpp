@@ -1,15 +1,19 @@
 #include <Core/EntryPoint.h>
-#include <Core/Utils/Log.h>
 
-NUI_MAIN()
+
+class TestbenchApp : public Nui::AppBase
 {
-	NUI_LOG(Debug, Main, "Debug Log!");
-	NUI_LOG(Info, Main, "Info Log!");
-	NUI_LOG(Warn, Main, "Warn Log!");
-	NUI_LOG(Error, Main, "Error Log!");
-	//NUI_LOG(Fatal, Main, "Fatal Log!");
+public:
+	TestbenchApp()
+		: Nui::AppBase(L"TestbenchApp", Nui::Window::Style::Windowed, { 1280, 720 }, { 500, 250 })
+	{
 
-	HRESULT hr = E_FAIL;
-	NUI_ASSERT(SUCCEEDED(hr), "Number is not 3");
-	return 0;
-}
+	}
+
+	virtual ~TestbenchApp()
+	{
+
+	}
+};
+
+NUI_DECLARE_APP(TestbenchApp)

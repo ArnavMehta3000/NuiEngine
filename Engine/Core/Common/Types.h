@@ -18,6 +18,14 @@ namespace Nui
 	using U32 = uint32_t;
 	using U64 = uint64_t;
 
+	using U32Max = uintmax_t;
+	using I32Max = intmax_t;
+
+	constexpr U64 U64InvalidId = 0xffff'ffff'ffff'ffffuI64;
+	constexpr U32 U32InvalidId = 0xffff'ffffuI32;
+	constexpr U16 U16InvalidId = 0xffffuI16;
+	constexpr U8  U8InvalidId  = 0xffuI8;
+
 	using F32 = float;
 	using F64 = double;
 
@@ -27,7 +35,7 @@ namespace Nui
 	using StringView = std::string_view;
 
 	using StringW = std::wstring;
-	using StringWView = std::wstring_view;
+	using StringViewW = std::wstring_view;
 	
 	using Stacktrace  = std::stacktrace;
 

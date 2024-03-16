@@ -9,12 +9,16 @@
 #pragma warning(pop)
 
 #include <Windows.h>
-#include <Core/Common/CommonHeaders.h>
+#include <Core/Engine/Engine.h>
 
-// TODO: Add command line arguments to be passed to the engine
-extern int NuiMain();
 
-#define NUI_MAIN() int NuiMain()
+
+#define NUI_DECLARE_APP(app)                                  \
+std::unique_ptr<Nui::AppBase> Nui::Engine::Internal::MakeApp()\
+{                                                             \
+	return std::make_unique<app>();                           \
+}
+
 
 // Write the windows main function
 int WINAPI wWinMain(
@@ -26,7 +30,10 @@ int WINAPI wWinMain(
 {
 	try
 	{
-		return NuiMain();
+		bool result = Nui::Engine::Init();
+		NUI_ASSERT(result, "Failed to initialize engine");
+		Nui::Engine::MainLoop();
+		Nui::Engine::Shutdown();
 	}
 	catch (const std::exception& e)
 	{
