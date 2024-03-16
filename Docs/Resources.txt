@@ -1,0 +1,4 @@
+[ECS]
+https://www.youtube.com/watch?v=rT599NDbkN4&list=PLU2nPsAdxKWQYxkmQ3TdbLsyc1l2j25XM&index=9&pp=iAQB
+https://github.com/jslee02/awesome-entity-component-system
+https://tsprojectsblog.wordpress.com/portfolio/entity-component-system/
