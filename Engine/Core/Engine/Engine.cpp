@@ -30,7 +30,7 @@ namespace Nui::Engine
 		s_app = Internal::MakeApp();
 
 		timer.Stop();
-		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in " + timer.GetElapsedSeconds().ToString() + " seconds");
+		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
 		
 		s_initialized = true;
 		return s_initialized;
@@ -57,7 +57,7 @@ namespace Nui::Engine
 		s_app.reset();
 
 		timer.Stop();
-		NUI_LOG(Debug, Engine, "Nui Engine shut down successfully in " + timer.GetElapsedSeconds().ToString() + " seconds");
+		NUI_LOG(Debug, Engine, "Nui Engine shut down successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
 		Log::Internal::CloseLogFile();
 	}
 }

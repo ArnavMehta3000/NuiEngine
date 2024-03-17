@@ -169,8 +169,8 @@ namespace Nui
 
 		if (!::RegisterClassExW(&wcx))
 		{
-			// Log error but try to conitinue regardless
-			NUI_LOG(Error, Window, "Failed to register window class. " + GetWin32ErrorString(GetLastError()));
+			// Log error but try to continue regardless
+			NUI_LOG(Error, Window, "Failed to register window class. ", GetWin32ErrorString(GetLastError()));
 		}
 		NUI_LOG(Debug, Window, "Registered window class");
 
