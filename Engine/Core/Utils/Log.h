@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Common/Types.h"
+#include "Core/Utils/Timestamp.h"
 #include <fstream>
 
 namespace Nui::Log
@@ -59,7 +59,6 @@ namespace Nui::Log
 		* @note It's fine if this function is not called since the log file is automatically closed when the program exits
 		*/
 		void CloseLogFile();
-
 	}  // namespace Internal
 
 	/**
@@ -134,7 +133,7 @@ namespace Nui::Log
 		/**
 		 * @brief The timestamp of the log entry
 		 */
-		chrono::system_clock::time_point Time;
+		Timestamp Timestamp;
 
 		/**
 		 * @brief The stack trace associated with the log entry
@@ -148,10 +147,6 @@ namespace Nui::Log
 	* @see LogEntry
 	*/
 	void Log(const LogEntry& entry);
-
-	/**
-	*/
-	String GetTimestamp(const chrono::system_clock::time_point& timePoint = chrono::system_clock::now());
 
 	/**
 	* @brief Asserts a condition and logs an error if it is not met.
