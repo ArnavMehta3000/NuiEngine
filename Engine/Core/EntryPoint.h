@@ -8,9 +8,7 @@
 #define NOHELP
 #pragma warning(pop)
 
-#include <Windows.h>
 #include <Core/Engine/Engine.h>
-
 
 
 #define NUI_DECLARE_APP(app)                                  \
