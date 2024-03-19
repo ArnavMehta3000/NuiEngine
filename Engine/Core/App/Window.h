@@ -110,6 +110,12 @@ namespace Nui
 		* @return True if maximized
 		*/
 		bool Maximized() const;
+
+		/**
+		* @brief Check if the window has focus
+		* @return True if focused
+		*/
+		bool Focused() const;
 		
 		/**
 		* @brief Runs the window message pump and checks if the window wants to close
@@ -202,6 +208,11 @@ namespace Nui
 		* @brief Window title
 		*/
 		StringW   m_title;
+
+		/**
+		 * @brief Is the window focused
+		 */
+		bool m_isFocused;
 
 		/**
 		* @brief Window message callbacks

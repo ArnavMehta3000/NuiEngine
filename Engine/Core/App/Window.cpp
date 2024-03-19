@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "Core/Utils/Exceptions.h"
+#include "Core/App/Input/Input.h"
 #include <windowsx.h>
 #include <dwmapi.h>
 #include <ranges>
@@ -51,7 +52,6 @@ namespace Nui
 			case Window::Style::Borderless:
 			case Window::Style::BorderlessFullscreen:
 				return GetBorderlessStyle();
-				//return GetBorderlessStyle() | BorderlessFullscreen;
 			}
 
 			return StyleInternal::Windowed;
@@ -83,9 +83,11 @@ namespace Nui
 		, m_size(size)
 		, m_position(position)
 		, m_hWnd(nullptr)
+		, m_isFocused(false)
 		, m_hInstance(GetModuleHandle(NULL))
 	{
 		MakeWindow();
+		Input::Internal::Init(m_hWnd);
 	}
 
 	Window::~Window()
@@ -109,6 +111,11 @@ namespace Nui
 		}
 
 		return placement.showCmd == SW_MAXIMIZE;
+	}
+
+	bool Window::Focused() const
+	{
+		return m_isFocused;
 	}
 
 	bool Window::WantsToClose() const
@@ -188,6 +195,8 @@ namespace Nui
 			nullptr,
 			this
 		);
+
+		NUI_ASSERT(m_hWnd, "Failed to create window, handle is nullptr");
 
 		// 
 		bool fullscreen = false;
@@ -298,16 +307,62 @@ namespace Nui
 			break;
 		}
 
-		// Window is being destroyed
 		case WM_DESTROY:
+		{
 			::PostQuitMessage(0);
 			return 0;
+		}
 
-			// Window is being closed
 		case WM_CLOSE:
 		{
 			DestroyWindow(hWnd);
 			return 0;
+		}
+
+		case WM_SETFOCUS:
+		{
+			m_isFocused = true;
+			return 0;
+		}
+
+		case WM_KILLFOCUS:
+		{
+			m_isFocused = false;
+			return 0;
+		}
+
+		// Input messages
+		case WM_INPUT:
+			[[fallthrough]];
+		case WM_SYSKEYDOWN:
+			[[fallthrough]];
+		case WM_SYSKEYUP:
+			[[fallthrough]];
+		case WM_KEYDOWN:
+			[[fallthrough]];
+		case WM_KEYUP:
+			[[fallthrough]];
+		case WM_LBUTTONDOWN:
+			[[fallthrough]];
+		case WM_MBUTTONDOWN:
+			[[fallthrough]];
+		case WM_RBUTTONDOWN:
+			[[fallthrough]];
+		case WM_LBUTTONUP:
+			[[fallthrough]];
+		case WM_MBUTTONUP:
+			[[fallthrough]];
+		case WM_RBUTTONUP:
+			[[fallthrough]];
+		case WM_XBUTTONDOWN:
+			[[fallthrough]];
+		case WM_XBUTTONUP:
+			[[fallthrough]];
+		case WM_MOUSEMOVE:
+			[[fallthrough]];
+		case WM_MOUSEWHEEL:
+		{
+			return Input::Internal::ProcessAll(hWnd, uMsg, wParam, lParam);
 		}
 		}
 
