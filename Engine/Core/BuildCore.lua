@@ -33,7 +33,8 @@ project "NuiCore"
 
     flags
     {
-        "MultiProcessorCompile"
+        "MultiProcessorCompile",
+        "FatalWarnings"
     }
 
     filter "configurations:Debug"

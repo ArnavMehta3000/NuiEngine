@@ -28,7 +28,8 @@ project "NuiConsole"
 
     flags
     {
-        "MultiProcessorCompile"
+        "MultiProcessorCompile",
+        "FatalWarnings"
     }
 
     filter "configurations:Debug"
