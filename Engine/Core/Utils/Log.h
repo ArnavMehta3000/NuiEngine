@@ -202,7 +202,7 @@ namespace Nui::Log
 #define NUI_LOG(Level, Category, ...) Nui::Log::Log(Nui::Log::LogEntry(Nui::Log::LogLevel::Level, #Category, Nui::Log::Format(__VA_ARGS__)))
 
 #if NUI_DEBUG
-#define NUI_ASSERT(Condition, ...) Nui::Log::Assert(Condition, #Condition, __VA_ARGS__, __FILE__, __LINE__)
+#define NUI_ASSERT(Condition, ...) Nui::Log::Assert(Condition, #Condition, Nui::Log::Format(__VA_ARGS__), __FILE__, __LINE__)
 #else
 #define NUI_ASSERT(Condition, ...)
 #endif
