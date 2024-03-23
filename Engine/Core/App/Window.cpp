@@ -77,11 +77,10 @@ namespace Nui
 
 	}  // Anonymous namespace
 
-	Window::Window(Window::Style style, StringViewW title, Window::Size size, Window::Position position)
+	Window::Window(Window::Style style, StringViewW title, Window::Size size)
 		: m_style(style)
 		, m_title(title)
 		, m_size(size)
-		, m_position(position)
 		, m_hWnd(nullptr)
 		, m_isFocused(false)
 		, m_hInstance(GetModuleHandle(NULL))
@@ -179,26 +178,30 @@ namespace Nui
 			// Log error but try to continue regardless
 			NUI_LOG(Error, Window, "Failed to register window class. ", GetWin32ErrorString(GetLastError()));
 		}
-		NUI_LOG(Debug, Window, "Registered window class");
 
+		// Get window centered position
+		RECT desktopRect;
+		::GetWindowRect(::GetDesktopWindow(), &desktopRect);
+		I32 posX = (desktopRect.right / 2) - (m_size.X / 2);
+		I32 posY = (desktopRect.bottom / 2) - (m_size.Y / 2);
+
+		StyleInternal style = ConvertStyle(m_style);
 		m_hWnd = ::CreateWindowExW(
 			0,
 			s_windowClassName.c_str(),
 			m_title.c_str(),
-			ConvertStyle(m_style),
-			m_position.X,
-			m_position.Y,
-			m_size.X,
-			m_size.Y,
+			style,
+			posX, posY,
+			m_size.X, m_size.Y,
 			nullptr,
 			nullptr,
-			nullptr,
+			m_hInstance,
 			this
 		);
 
 		NUI_ASSERT(m_hWnd, "Failed to create window, handle is nullptr");
 
-		// 
+		// Apply style
 		bool fullscreen = false;
 		Style styleProxy = GetStyleProxy(m_style, fullscreen);
 		
@@ -212,10 +215,9 @@ namespace Nui
 			{
 				::SetWindowLongW(m_hWnd, GWL_STYLE, static_cast<LONG>(style));
 
-				// Enable shadow if possible
 				if (IsCompositionEnabled())
 				{
-					static const MARGINS shadowState[2]{ { 0,0,0,0 },{ 1,1,1,1 } };
+					static const MARGINS shadowState[2]{ { 0, 0, 0, 0 }, { 1, 1, 1, 1 } };
 					::DwmExtendFrameIntoClientArea(m_hWnd, &shadowState[style != StyleInternal::Windowed]);
 				}
 
@@ -231,7 +233,7 @@ namespace Nui
 		AdjustWindowRect(&rect, (DWORD)m_style, FALSE);
 		m_size.X = rect.right - rect.left;
 		m_size.Y = rect.bottom - rect.top;
-
+		::UpdateWindow(m_hWnd);
 		NUI_LOG(Debug, Window, "Created window");
 	}
 
@@ -250,14 +252,9 @@ namespace Nui
 
 	LRESULT Window::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		if (m_callbacks.find(uMsg) != m_callbacks.end())
-		{
-			return m_callbacks[uMsg](this, uMsg, wParam, lParam);
-		}
-		else
-		{
-			return MessageHandler(hWnd, uMsg, wParam, lParam);
-		}
+		return m_callbacks.contains(uMsg)
+			? m_callbacks[uMsg](this, uMsg, wParam, lParam) 
+			: MessageHandler(hWnd, uMsg, wParam, lParam);		
 
 	}
 
@@ -274,7 +271,7 @@ namespace Nui
 		}
 		}
 
-		Window* pObj = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+		Window* pObj = reinterpret_cast<Window*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 		if (pObj)
 			return pObj->MessageRouter(hWnd, uMsg, wParam, lParam);
 		else
