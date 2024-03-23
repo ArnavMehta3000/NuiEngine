@@ -2,8 +2,8 @@
 
 namespace Nui
 {
-	AppBase::AppBase(StringViewW appName, Window::Style style, Window::Size size, Window::Position position)
-		: Window(style, appName, size, position)
+	AppBase::AppBase(StringViewW appName, Window::Style style, Window::Size size)
+		: Window(style, appName, size)
 		, m_wantsToClose(false)
 	{
 	}

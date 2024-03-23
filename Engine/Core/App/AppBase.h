@@ -7,7 +7,7 @@ namespace Nui
 	class AppBase : public Window
 	{
 	public:
-		explicit AppBase(StringViewW appName, Window::Style style, Window::Size size, Window::Position position);
+		explicit AppBase(StringViewW appName, Window::Style style, Window::Size size);
 		virtual ~AppBase();
 
 		void Run();

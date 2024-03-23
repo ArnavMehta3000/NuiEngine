@@ -53,13 +53,6 @@ namespace Nui
 			I32 Y;
 		};
 		
-		/**
-		* @brief Window position
-		* @note This is same as Window::Size
-		* @see Nui::Window::Size
-		*/
-		using Position = Size;
-
 #define NUI_WNDPROC_ARGS Nui::Window*, UINT, WPARAM, LPARAM
 #define NUI_WNDPROC_NAMED_ARGS Nui::Window* window, UINT uMsg, WPARAM wParam, LPARAM lParam
 		using WndCallback = std::function<LRESULT(NUI_WNDPROC_ARGS)>;
@@ -73,7 +66,7 @@ namespace Nui
 		* @param position Window position
 		* @param title Window title
 		*/
-		explicit Window(Window::Style style, StringViewW title, Window::Size size = { 1280, 720 }, Window::Position position = { 500, 250 });
+		explicit Window(Window::Style style, StringViewW title, Window::Size size = { 1280, 720 });
 		
 		/**
 		* @brief Destroy the window
@@ -198,11 +191,6 @@ namespace Nui
 		* @brief Window size
 		*/
 		Size      m_size;
-
-		/**
-		* @brief Window position
-		*/
-		Position  m_position;
 
 		/**
 		* @brief Window title
