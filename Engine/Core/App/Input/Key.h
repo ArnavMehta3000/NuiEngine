@@ -9,6 +9,9 @@
 
 namespace Nui::Input
 {
+	/**
+	 * @brief Win32 key codes
+	 */
 	enum KeyCode : U8
 	{
 		KEY_NULL                = 0,

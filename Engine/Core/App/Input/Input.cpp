@@ -57,12 +57,12 @@ namespace Nui::Input
 			{
 				auto& state = g_mouse->Buttons[keyCode];
 
-				POINTS p                = MAKEPOINTS(lParam);
-				state.Position.X        = p.x;
-				state.Position.Y        = p.y;
-				state.Modifier.HasAlt   = (bool)(::GetKeyState(VK_MENU) & 0x8000);
-				state.Modifier.HasCtrl  = hasCtrl;
-				state.Modifier.HasShift = hasShift;
+				POINTS p                      = MAKEPOINTS(lParam);
+				state.Position.X              = p.x;
+				state.Position.Y              = p.y;
+				state.State.Modifier.HasAlt   = (bool)(::GetKeyState(VK_MENU) & 0x8000);
+				state.State.Modifier.HasCtrl  = hasCtrl;
+				state.State.Modifier.HasShift = hasShift;
 
 				if (pressed)
 				{
@@ -216,6 +216,7 @@ namespace Nui::Input
 					lParam);
 				return 0;
 			}
+
 			case WM_XBUTTONUP:
 			{
 				return ProcessMouseButton(
@@ -280,12 +281,15 @@ namespace Nui::Input
 			return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
 
-		void Reset()
+		void Reset(bool resetHeldKeys)
 		{
 			// Reset keyboard
 			g_pressedKeys.reset();
 			g_releasedKeys.reset();
-			//g_heldKeys.reset();
+			if (resetHeldKeys)
+			{
+				g_heldKeys.reset();
+			}
 
 			// Reset mouse
 			if (g_mouse)
@@ -296,7 +300,7 @@ namespace Nui::Input
 					state.State.IsHeld     = false;
 					state.State.IsPressed  = false;
 					state.State.IsReleased = false;
-					state.Modifier         = { false, false, false };
+					state.State.Modifier   = { false, false, false };
 					state.Position         = { 0, 0 };
 				}
 
@@ -310,7 +314,7 @@ namespace Nui::Input
 		{
 			if (!windowIsFocused)
 			{
-				Reset();
+				Reset(true);
 			}
 		}
 
@@ -342,9 +346,6 @@ namespace Nui::Input
 		};
 	}
 
-
-
-
 	Mouse::Mouse()
 	{
 		Buttons[KeyCode::KEY_LBUTTON]  = { ButtonState{KeyState{ KeyCode::KEY_LBUTTON  } } };
@@ -371,7 +372,7 @@ namespace Nui::Input
 		return Internal::g_mouse->Position;
 	}
 
-	Mouse::Point GetMouseRawPosition()
+	Mouse::Point GetMouseRawDelta()
 	{
 		NUI_ASSERT(Internal::g_mouse.get(), "GetMousePosition should only be called after mouse is initialized");
 		
