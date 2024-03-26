@@ -1,6 +1,6 @@
 #pragma once
-#include "Core/Common/NuiWin.h"
 #include "Core/Common/CommonHeaders.h"
+#include "Core/Input/Input.h"
 #include <map>
 #include <functional>
 

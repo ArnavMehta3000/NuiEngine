@@ -1,6 +1,5 @@
 #include "Core/Engine/Engine.h"
 #include "Core/Utils/Filesystem.h"
-#include "Core/App/Input/Input.h"
 #include <thread>
 
 namespace Nui::Engine
@@ -32,8 +31,7 @@ namespace Nui::Engine
 
 		NUI_ASSERT(s_app.get(), "Failed to create application");
 
-		// Initialize input
-		Input::Internal::Init(s_app->GetHWND());
+		Input::Internal::Init();
 
 		timer.Stop();
 		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
@@ -56,11 +54,7 @@ namespace Nui::Engine
 		{
 			now = updateLoop.GetElapsedSeconds();
 
-			Input::Internal::PreUpdate(s_app->Focused());
-
 			// Tick engine here
-
-			Input::Internal::PostUpdate();
 
 			dt = now - elapsed;
 			elapsed = now;
