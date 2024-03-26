@@ -1,6 +1,5 @@
 #include "Window.h"
 #include "Core/Utils/Exceptions.h"
-#include "Core/App/Input/Input.h"
 #include <windowsx.h>
 #include <dwmapi.h>
 #include <ranges>
@@ -86,7 +85,6 @@ namespace Nui
 		, m_hInstance(GetModuleHandle(NULL))
 	{
 		MakeWindow();
-		Input::Internal::Init(m_hWnd);
 	}
 
 	Window::~Window()
@@ -327,41 +325,14 @@ namespace Nui
 			m_isFocused = false;
 			return 0;
 		}
+		}
 
-		// Input messages
-		case WM_INPUT:
-			[[fallthrough]];
-		case WM_SYSKEYDOWN:
-			[[fallthrough]];
-		case WM_SYSKEYUP:
-			[[fallthrough]];
-		case WM_KEYDOWN:
-			[[fallthrough]];
-		case WM_KEYUP:
-			[[fallthrough]];
-		case WM_LBUTTONDOWN:
-			[[fallthrough]];
-		case WM_MBUTTONDOWN:
-			[[fallthrough]];
-		case WM_RBUTTONDOWN:
-			[[fallthrough]];
-		case WM_LBUTTONUP:
-			[[fallthrough]];
-		case WM_MBUTTONUP:
-			[[fallthrough]];
-		case WM_RBUTTONUP:
-			[[fallthrough]];
-		case WM_XBUTTONDOWN:
-			[[fallthrough]];
-		case WM_XBUTTONUP:
-			[[fallthrough]];
-		case WM_MOUSEMOVE:
-			[[fallthrough]];
-		case WM_MOUSEWHEEL:
+		if (Input::Internal::ProcessInputWndProc(hWnd, uMsg, wParam, lParam))
 		{
-			return Input::Internal::ProcessAll(hWnd, uMsg, wParam, lParam);
+			// Message was processed by input system
+			return 0;
 		}
-		}
+
 
 		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
