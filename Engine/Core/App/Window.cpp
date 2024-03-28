@@ -327,7 +327,7 @@ namespace Nui
 		}
 		}
 
-		if (Input::Internal::ProcessInputWndProc(hWnd, uMsg, wParam, lParam))
+		if (Input::Internal::ProcessInputWndProc(this, uMsg, wParam, lParam))
 		{
 			// Message was processed by input system
 			return 0;

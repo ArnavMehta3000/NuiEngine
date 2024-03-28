@@ -1,6 +1,5 @@
 #include "Core/Engine/Engine.h"
 #include "Core/Utils/Filesystem.h"
-#include <thread>
 
 namespace Nui::Engine
 {
@@ -31,8 +30,6 @@ namespace Nui::Engine
 
 		NUI_ASSERT(s_app.get(), "Failed to create application");
 
-		Input::Internal::Init();
-
 		timer.Stop();
 		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
 		
@@ -53,8 +50,10 @@ namespace Nui::Engine
 		while (!s_app->WantsToClose())
 		{
 			now = updateLoop.GetElapsedSeconds();
-
-			// Tick engine here
+			// Log FPS
+			NUI_LOG(Debug, Engine, "FPS: ", (1.0 / dt));
+			
+			Input::Internal::Tick();
 
 			dt = now - elapsed;
 			elapsed = now;

@@ -1,13 +1,27 @@
 #pragma once
 #include "Core/Common/CommonHeaders.h"
-#include "Core/Input/InputEvent.h"
+#include "InputDevice.h"
 
-namespace Nui::Input
+namespace Nui
 {
-	namespace Internal
-	{
-		void Init();
+	class Window;
 
-		[[nodiscard]] bool ProcessInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	namespace Input
+	{
+		namespace Internal
+		{
+			[[nodiscard]] 
+			bool ProcessInputWndProc(const Window* window, UINT uMsg, WPARAM wParam, LPARAM lParam);
+			void Tick();
+		}
+
+		const [[nodiscard]] Mouse::Point& GetMousePosition();
+		const [[nodiscard]] Mouse::Point& GetMouseRawDelta();
+		const [[nodiscard]] Mouse::WheelInfo& GetMouseWheelH();
+		const [[nodiscard]] Mouse::WheelInfo& GetMouseWheelV();
+		const [[nodiscard]] Mouse::ButtonState& GetMouseButton(Mouse::Button btn);
+		const [[nodiscard]] Mouse::ButtonState& GetMouseButton(U32 btn);
+
+		const [[nodiscard]] Keyboard::KeyState& GetKeyState(KeyCode key);
 	}
 }
