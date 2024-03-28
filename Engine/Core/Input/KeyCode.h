@@ -4,10 +4,6 @@
 
 namespace Nui::Input
 {
-// There is no distinct VK_xxx for keypad enter, instead it is VK_RETURN + KF_EXTENDED, we assign it an arbitrary value to make code more readable (VK_ codes go up to 255)
-// From ImGui
-#define NUI_VK_NUMPAD_ENTER      (VK_RETURN + 256)
-
 	enum class KeyCode : U64
 	{
 		None           = 0,
@@ -130,29 +126,148 @@ namespace Nui::Input
 		NumPadMultiply = VK_MULTIPLY,
 		NumPadSubtract = VK_SUBTRACT,
 		NumPadAdd      = VK_ADD,
-		NumPadEnter    = NUI_VK_NUMPAD_ENTER,
 
 		KEYCODE_COUNT
 	};
 
-	enum class MouseButton
-	{
-		None = 0,
 
-		Left,
-		Right,
-		Middle,
-		MouseX1,
-		MouseX2,
+
+	enum Modifier : U64
+	{
+		MOD_None = 0,
+
+		MOD_LShift   = 1 << 0,
+		MOD_RShift   = 1 << 1,
+		MOD_LControl = 1 << 2,
+		MOD_RControl = 1 << 3,
+		MOD_LAlt     = 1 << 4,
+		MOD_RAlt     = 1 << 5,
+		MOD_LSuper   = 1 << 6,
+		MOD_RSuper   = 1 << 7,
 	};
 
-	enum class Modifier : U64
+	inline constexpr U64 ConvertKeyCodeToArrayIndex(KeyCode keyCode)
 	{
-		None = 0,
+		switch (keyCode)
+		{
+		case KeyCode::LeftArrow:      return 0;
+		case KeyCode::RightArrow:     return 1;
+		case KeyCode::UpArrow:        return 2;
+		case KeyCode::DownArrow:      return 3;
+		case KeyCode::PageUp:         return 4;
+		case KeyCode::PageDown:       return 5;
+		case KeyCode::Home:           return 6;
+		case KeyCode::End:            return 7;
+		case KeyCode::Insert:         return 8;
+		case KeyCode::Delete:         return 9;
+		case KeyCode::Backspace:      return 10;
+		case KeyCode::Space:          return 11;
+		case KeyCode::Enter:          return 12;
+		case KeyCode::Escape:         return 13;
+		case KeyCode::LeftCtrl:       return 14;
+		case KeyCode::LeftShift:      return 15;
+		case KeyCode::LeftAlt:        return 16;
+		case KeyCode::LeftSuper:      return 17;
+		case KeyCode::RightCtrl:      return 18;
+		case KeyCode::RightShift:     return 19;
+		case KeyCode::RightAlt:       return 20;
+		case KeyCode::RightSuper:     return 21;
+		case KeyCode::Menu:           return 22;
+		case KeyCode::Num0:           return 23;
+		case KeyCode::Num1:           return 24;
+		case KeyCode::Num2:           return 25;
+		case KeyCode::Num3:           return 26;
+		case KeyCode::Num4:           return 27;
+		case KeyCode::Num5:           return 28;
+		case KeyCode::Num6:           return 29;
+		case KeyCode::Num7:           return 30;
+		case KeyCode::Num8:           return 31;
+		case KeyCode::Num9:           return 32;
+		case KeyCode::A:              return 33;
+		case KeyCode::B:              return 34;
+		case KeyCode::C:              return 35;
+		case KeyCode::D:              return 36;
+		case KeyCode::E:              return 37;
+		case KeyCode::F:              return 38;
+		case KeyCode::G:              return 39;
+		case KeyCode::H:              return 40;
+		case KeyCode::I:              return 41;
+		case KeyCode::J:              return 42;
+		case KeyCode::K:              return 43;
+		case KeyCode::L:              return 44;
+		case KeyCode::M:              return 45;
+		case KeyCode::N:              return 46;
+		case KeyCode::O:              return 47;
+		case KeyCode::P:              return 48;
+		case KeyCode::Q:              return 49;
+		case KeyCode::R:              return 50;
+		case KeyCode::S:              return 51;
+		case KeyCode::T:              return 52;
+		case KeyCode::U:              return 53;
+		case KeyCode::V:              return 54;
+		case KeyCode::W:              return 55;
+		case KeyCode::X:              return 56;
+		case KeyCode::Y:              return 57;
+		case KeyCode::Z:              return 58;
+		case KeyCode::F1:             return 59;
+		case KeyCode::F2:             return 60;
+		case KeyCode::F3:             return 61;
+		case KeyCode::F4:             return 62;
+		case KeyCode::F5:             return 63;
+		case KeyCode::F6:             return 64;
+		case KeyCode::F7:             return 65;
+		case KeyCode::F8:             return 66;
+		case KeyCode::F9:             return 67;
+		case KeyCode::F10:            return 68;
+		case KeyCode::F11:            return 69;
+		case KeyCode::F12:            return 70;
+		case KeyCode::F13:            return 71;
+		case KeyCode::F14:            return 72;
+		case KeyCode::F15:            return 73;
+		case KeyCode::F16:            return 74;
+		case KeyCode::F17:            return 75;
+		case KeyCode::F18:            return 76;
+		case KeyCode::F19:            return 77;
+		case KeyCode::F20:            return 78;
+		case KeyCode::F21:            return 79;
+		case KeyCode::F22:            return 80;
+		case KeyCode::F23:            return 81;
+		case KeyCode::F24:            return 82;
+		case KeyCode::Apostrophe:     return 83;
+		case KeyCode::Comma:          return 84;
+		case KeyCode::Minus:          return 85;
+		case KeyCode::Period:         return 86;
+		case KeyCode::Slash:          return 87;
+		case KeyCode::Semicolon:      return 88;
+		case KeyCode::Equal:          return 89;
+		case KeyCode::LBracket:       return 90;
+		case KeyCode::RBracket:       return 91;
+		case KeyCode::Backslash:      return 92;
+		case KeyCode::GraveAccent:    return 93;
+		case KeyCode::CapsLock:       return 94;
+		case KeyCode::ScrollLock:     return 95;
+		case KeyCode::NumLock:        return 96;
+		case KeyCode::PrintScreen:    return 97;
+		case KeyCode::NumPad0:        return 98;
+		case KeyCode::NumPad1:        return 99;
+		case KeyCode::NumPad2:        return 100;
+		case KeyCode::NumPad3:        return 101;
+		case KeyCode::NumPad4:        return 102;
+		case KeyCode::NumPad5:        return 103;
+		case KeyCode::NumPad6:        return 104;
+		case KeyCode::NumPad7:        return 105;
+		case KeyCode::NumPad8:        return 106;
+		case KeyCode::NumPad9:        return 107;
+		case KeyCode::NumPadDecimal:  return 108;
+		case KeyCode::NumPadDivide:   return 109;
+		case KeyCode::NumPadMultiply: return 110;
+		case KeyCode::NumPadSubtract: return 111;
+		case KeyCode::NumPadAdd:      return 112;
+		case KeyCode::KEYCODE_COUNT:  return 113;
+		}
 
-		Shift   = 1 << 0,
-		Control = 1 << 1,
-		Alt     = 1 << 2,
-		Super   = 1 << 3,
-	};
+		// Return out of bounds index
+		return ConvertKeyCodeToArrayIndex(KeyCode::KEYCODE_COUNT) + 1;
+	}
+
 }
