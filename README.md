@@ -43,7 +43,7 @@ The project roadmap will keep on expanding and changing as I keep working on the
   - [x] Filesystem
   - [ ] Application
     - [x] Windowing
-    - [ ] Input
+    - [x] Input
 - [ ] Graphics
   - [ ] --- TBD ---
 - [ ] Audio
