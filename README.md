@@ -41,7 +41,7 @@ The project roadmap will keep on expanding and changing as I keep working on the
   - [x] Logging
   - [x] Assertion
   - [x] Filesystem
-  - [ ] Application
+  - [x] Application
     - [x] Windowing
     - [x] Input
 - [ ] Graphics
