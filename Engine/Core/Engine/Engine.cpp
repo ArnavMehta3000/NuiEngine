@@ -1,9 +1,9 @@
 #include "Core/Engine/Engine.h"
 #include "Core/Utils/Filesystem.h"
+#include "Core/ECS/World.h"
 
 namespace Nui
 {
-
 	Engine& Engine::Get()
 	{
 		static Engine s_instance;
@@ -19,6 +19,36 @@ namespace Nui
 		Log::Internal::OpenLogFile(Filesystem::GetCurrentWorkingDirectory() / "Saved" / "NuiEngine.log");
 
 		NUI_LOG(Debug, Engine, "Initializing Nui Engine...");
+
+		struct Test {int x; int y; };
+		struct Test1 { int x; int y; };
+		struct Test2 {int x; int y; };
+
+		auto world = ECS::World();
+		auto e1 = world.CreateEntity();
+		auto e2 = world.CreateEntity();
+		auto e3 = world.CreateEntity();
+		world.AddComponent<Test>(e1);
+		world.AddComponent<Test1>(e1);
+		world.AddComponent<Test1>(e2);
+		world.AddComponent<Test1>(e3);
+		world.AddComponent<Test2>(e1);
+
+		world.RemoveComponent<Test>(e1);
+
+		auto c2 = world.GetComponent<Test2>(e1);
+		c2->x = 5;
+		auto c3 = world.GetComponent<Test2>(e1);
+		c3->x = 10;
+
+		ECS::WorldView<Test1> view(world);
+
+		for (const auto& e : view)
+		{
+			auto id = e;
+
+		}
+		
 
 		// Make application
 		m_app = Internal::MakeApp();
@@ -41,7 +71,6 @@ namespace Nui
 			Input::Internal::Update();
 
 			// Update application
-
 
 			dt = now - elapsed;
 			elapsed = now;
