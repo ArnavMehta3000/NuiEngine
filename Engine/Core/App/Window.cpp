@@ -1,8 +1,6 @@
 #include "Window.h"
-#include "Core/Utils/Exceptions.h"
 #include <windowsx.h>
 #include <dwmapi.h>
-#include <ranges>
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -129,7 +127,6 @@ namespace Nui
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -202,7 +199,7 @@ namespace Nui
 		// Apply style
 		bool fullscreen = false;
 		Style styleProxy = GetStyleProxy(m_style, fullscreen);
-		
+
 
 		if (HasStyleFlag((DWORD)styleProxy, (DWORD)Style::Borderless))
 		{
@@ -223,7 +220,7 @@ namespace Nui
 				::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 			}
 		}
-		
+
 		::ShowWindow(m_hWnd, fullscreen ? SW_MAXIMIZE : SW_SHOWNORMAL);
 
 		// Update window size
@@ -251,8 +248,8 @@ namespace Nui
 	LRESULT Window::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		return m_callbacks.contains(uMsg)
-			? m_callbacks[uMsg](this, uMsg, wParam, lParam) 
-			: MessageHandler(hWnd, uMsg, wParam, lParam);		
+			? m_callbacks[uMsg](this, uMsg, wParam, lParam)
+			: MessageHandler(hWnd, uMsg, wParam, lParam);
 
 	}
 
@@ -280,7 +277,7 @@ namespace Nui
 	{
 		switch (uMsg)
 		{
-		case WM_NCCALCSIZE: 
+		case WM_NCCALCSIZE:
 		{
 			if (wParam == TRUE && HasStyleFlag((DWORD)m_style, (DWORD)Style::Borderless))
 			{
@@ -291,11 +288,11 @@ namespace Nui
 			break;
 		}
 
-		case WM_NCHITTEST: 
+		case WM_NCHITTEST:
 		{
 			// When we have no border or title bar, we need to perform our
 			// own hit testing to allow resizing and moving.
-			if (HasStyleFlag((DWORD)m_style, (DWORD)Style::Borderless)) 
+			if (HasStyleFlag((DWORD)m_style, (DWORD)Style::Borderless))
 			{
 				return HitTest(POINT{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
 			}
@@ -327,7 +324,7 @@ namespace Nui
 		}
 		}
 
-		if (Input::Internal::ProcessInputWndProc(this, uMsg, wParam, lParam))
+		if (Input::Internal::ProcessInputWndProc(hWnd, uMsg, wParam, lParam))
 		{
 			// Message was processed by input system
 			return 0;
@@ -354,7 +351,7 @@ namespace Nui
 			return HTNOWHERE;
 		}
 
-		enum region_mask 
+		enum region_mask
 		{
 			client = 0b0000,
 			left   = 0b0001,
@@ -369,7 +366,7 @@ namespace Nui
 			top    * (cursor.y < (window.top + border.y)) |
 			bottom * (cursor.y >= (window.bottom - border.y));
 
-		switch (result) 
+		switch (result)
 		{
 		case left          : return HTLEFT;
 		case right         : return HTRIGHT;

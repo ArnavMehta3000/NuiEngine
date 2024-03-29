@@ -11,8 +11,8 @@ namespace Nui
 		namespace Internal
 		{
 			[[nodiscard]] 
-			bool ProcessInputWndProc(const Window* window, UINT uMsg, WPARAM wParam, LPARAM lParam);
-			void Tick();
+			bool ProcessInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+			void Update();
 		}
 
 		const [[nodiscard]] Mouse::Point& GetMousePosition();

@@ -310,7 +310,7 @@ namespace Nui::Input
 	   KeyStates[ConvertKeyCodeToArrayIndex(KeyCode::NumPadAdd)]      = KeyState(KeyCode::NumPadAdd);
 	}
 
-	bool Internal::ProcessInputWndProc(const Window* window, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	bool Internal::ProcessInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		// If input system has not been initialized, register raw input devices but don't process input
 		[[unlikely]]
@@ -324,13 +324,13 @@ namespace Nui::Input
 			NUI_LOG(Debug, Input, "Registering raw input...");
 			RAWINPUTDEVICE Rid[1];
 			Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
-			Rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
-			Rid[0].dwFlags = RIDEV_INPUTSINK;
-			Rid[0].hwndTarget = window->GetHWND();
+			Rid[0].usUsage     = HID_USAGE_GENERIC_MOUSE;
+			Rid[0].dwFlags     = RIDEV_INPUTSINK;
+			Rid[0].hwndTarget  = hWnd;
 
 			if (!RegisterRawInputDevices(Rid, 1, sizeof(Rid[0])))
 			{
-				NUI_LOG(Error, Input, "Failed to register raw input devices");
+				NUI_LOG(Error, Input, "Failed to register raw input devices. ", GetWin32ErrorString(GetLastError()));
 				NUI_LOG(Debug, Input, "Input initialization completed with errors");
 			}
 			else
@@ -345,7 +345,7 @@ namespace Nui::Input
 
 		// Check for window focus
 		[[unlikely]]
-		if (!window->Focused())
+		if (::GetFocus() != hWnd)
 		{
 			Reset(true);
 			return false;
@@ -524,7 +524,7 @@ namespace Nui::Input
 		return false;
 	}
 
-	void Internal::Tick()
+	void Internal::Update()
 	{
 		Reset(false);
 	}
