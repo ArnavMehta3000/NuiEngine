@@ -12,7 +12,7 @@
 
 
 #define NUI_DECLARE_APP(app)                                  \
-std::unique_ptr<Nui::AppBase> Nui::Engine::Internal::MakeApp()\
+std::unique_ptr<Nui::AppBase> Nui::Internal::MakeApp()\
 {                                                             \
 	return std::make_unique<app>();                           \
 }
@@ -28,10 +28,9 @@ int WINAPI wWinMain(
 {
 	try
 	{
-		bool result = Nui::Engine::Init();
-		NUI_ASSERT(result, "Failed to initialize engine");
-		Nui::Engine::MainLoop();
-		Nui::Engine::Shutdown();
+		auto& engine = Nui::Engine::Get();
+		engine.Run();
+
 	}
 	catch (const std::exception& e)
 	{

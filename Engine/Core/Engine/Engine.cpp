@@ -1,20 +1,16 @@
 #include "Core/Engine/Engine.h"
 #include "Core/Utils/Filesystem.h"
 
-namespace Nui::Engine
+namespace Nui
 {
-	namespace  // anonymous namespace
-	{
-		static std::unique_ptr<AppBase> s_app{ nullptr };
-		static bool s_initialized{ false };
-	}  // anonymous namespace
 
-	Nui::AppBase* const GetApp()
+	Engine& Engine::Get()
 	{
-		return s_app.get();
+		static Engine s_instance;
+		return s_instance;
 	}
 
-	bool Init()
+	Engine::Engine()
 	{
 		Timer timer;
 		timer.Start();
@@ -24,50 +20,43 @@ namespace Nui::Engine
 
 		NUI_LOG(Debug, Engine, "Initializing Nui Engine...");
 
-
 		// Make application
-		s_app = Internal::MakeApp();
-
-		NUI_ASSERT(s_app.get(), "Failed to create application");
+		m_app = Internal::MakeApp();
+		NUI_ASSERT(m_app.get(), "Failed to create application");
 
 		timer.Stop();
 		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
-		
-		s_initialized = true;
-		return s_initialized;
 	}
 
-	void MainLoop()
+	void Engine::Run()
 	{
-		NUI_ASSERT(s_initialized, "Engine must be initialized before calling MainLoop");
-
-		NUI_LOG(Debug, Engine, "Starting main loop...");
-
 		Timer updateLoop;
 		updateLoop.Start();
 
 		F64 now = 0.0, dt = 0.0, elapsed = 0.0;
-		while (!s_app->WantsToClose())
+		while (!m_app->WantsToClose())
 		{
 			now = updateLoop.GetElapsedSeconds();
-			// Log FPS
-			NUI_LOG(Debug, Engine, "FPS: ", (1.0 / dt));
-			
-			Input::Internal::Tick();
+
+			Input::Internal::Update();
+
+			// Update application
+
 
 			dt = now - elapsed;
 			elapsed = now;
 		}
+
 		updateLoop.Stop();
 	}
 
-	void Shutdown()
+	Engine::~Engine()
 	{
 		Timer timer;
 		timer.Start();
 
 		NUI_LOG(Debug, Engine, "Shutting down Nui Engine...");
-		s_app.reset();
+		m_app.reset();
 
 		timer.Stop();
 		NUI_LOG(Debug, Engine, "Nui Engine shut down successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");

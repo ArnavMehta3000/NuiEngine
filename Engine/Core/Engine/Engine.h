@@ -2,17 +2,27 @@
 #include "Core/Common/CommonHeaders.h"
 #include "Core/App/AppBase.h"
 
-namespace Nui::Engine
+namespace Nui
 {
 	namespace Internal
 	{
 		extern std::unique_ptr<Nui::AppBase> MakeApp();
 	}
 
-	Nui::AppBase* const GetApp();
-	bool IsAppInitialized();
+	class Engine
+	{
+	public:
 
-	bool Init();
-	void MainLoop();
-	void Shutdown();
+		static Engine& Get();
+		void Run();
+
+	private:
+		Engine();
+		~Engine();
+		Engine(const Engine&) = delete;
+		Engine(Engine&&) = delete;
+
+	private:
+		std::unique_ptr<AppBase> m_app;
+	};
 }
