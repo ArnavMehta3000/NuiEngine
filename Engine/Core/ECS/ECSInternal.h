@@ -34,5 +34,5 @@ namespace Nui::ECS
         bool IsEntityIdValid(EntityId id);
     }
 
-#define INVALID_ENTITY Nui::ECS::Internal::CreateEntityId(EntityIndex(-1), 0)
+#define NUI_INVALID_ENTITY Nui::ECS::Internal::CreateEntityId(Nui::ECS::EntityIndex(-1), 0)
 }

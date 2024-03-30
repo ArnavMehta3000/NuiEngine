@@ -143,8 +143,14 @@ namespace Nui::ECS
 			return true;
 		}
 
-	private:
-		void DestroyEntities();
+		bool IsValidEntity(EntityId id);
+
+
+		void Cleanup();
+
+		U64 GetAliveCount() const;
+		U64 GetEntityPoolSize() const;
+		U64 GetFreeEntityCount() const;
 
 	private:
 		std::vector<Internal::EntityInfo>                     m_entities;
