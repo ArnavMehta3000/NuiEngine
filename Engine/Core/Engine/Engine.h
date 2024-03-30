@@ -16,7 +16,11 @@ namespace Nui
 		~Engine();
 
 		void Run();
+
+		inline F64 GetEngineUpTime() const noexcept { return m_engineTimer.GetElapsedSeconds(); }
+
 	private:
 		std::unique_ptr<AppBase> m_app;
+		Timer m_engineTimer;
 	};
 }

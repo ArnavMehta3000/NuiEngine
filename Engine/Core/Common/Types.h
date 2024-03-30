@@ -42,7 +42,7 @@ namespace Nui
 
 	using StringW = std::wstring;
 	using StringViewW = std::wstring_view;
-	
+
 	using Stacktrace  = std::stacktrace;
 
 	namespace fs     = std::filesystem;
