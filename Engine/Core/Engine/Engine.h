@@ -12,16 +12,10 @@ namespace Nui
 	class Engine
 	{
 	public:
-
-		static Engine& Get();
-		void Run();
-
-	private:
 		Engine();
 		~Engine();
-		Engine(const Engine&) = delete;
-		Engine(Engine&&) = delete;
 
+		void Run();
 	private:
 		std::unique_ptr<AppBase> m_app;
 	};

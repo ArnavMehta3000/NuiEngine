@@ -3,12 +3,6 @@
 
 namespace Nui
 {
-	Engine& Engine::Get()
-	{
-		static Engine s_instance;
-		return s_instance;
-	}
-
 	Engine::Engine()
 	{
 		Timer timer;

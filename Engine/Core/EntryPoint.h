@@ -9,12 +9,12 @@
 #pragma warning(pop)
 
 #include <Core/Engine/Engine.h>
+#include <Core/Utils/Singleton.h>
 
-
-#define NUI_DECLARE_APP(app)                                  \
+#define NUI_DECLARE_APP(app)                          \
 std::unique_ptr<Nui::AppBase> Nui::Internal::MakeApp()\
-{                                                             \
-	return std::make_unique<app>();                           \
+{                                                     \
+	return std::make_unique<app>();                   \
 }
 
 
@@ -28,9 +28,8 @@ int WINAPI wWinMain(
 {
 	try
 	{
-		auto& engine = Nui::Engine::Get();
-		engine.Run();
-
+		Nui::Singleton<Nui::Engine>::Get().Run();
+		Nui::Singleton<Nui::Engine>::Destroy();
 	}
 	catch (const std::exception& e)
 	{
