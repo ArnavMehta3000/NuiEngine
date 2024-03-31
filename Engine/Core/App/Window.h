@@ -66,7 +66,7 @@ namespace Nui
 		* @param position Window position
 		* @param title Window title
 		*/
-		explicit Window(Window::Style style, StringViewW title, Window::Size size = { 1280, 720 });
+		explicit Window(Window::Style style, WStringView title, Window::Size size = { 1280, 720 });
 		
 		/**
 		* @brief Destroy the window
@@ -96,7 +96,7 @@ namespace Nui
 		* @brief Set the window title
 		* @param title Window title
 		*/
-		void SetWindowTitle(StringW title);
+		void SetWindowTitle(WString title);
 
 		/**
 		* @brief Check if the window is maximized
@@ -195,7 +195,7 @@ namespace Nui
 		/**
 		* @brief Window title
 		*/
-		StringW   m_title;
+		WString   m_title;
 
 		/**
 		 * @brief Is the window focused

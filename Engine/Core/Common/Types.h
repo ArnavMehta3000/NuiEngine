@@ -40,8 +40,8 @@ namespace Nui
 	using String = std::string;
 	using StringView = std::string_view;
 
-	using StringW = std::wstring;
-	using StringViewW = std::wstring_view;
+	using WString = std::wstring;
+	using WStringView = std::wstring_view;
 
 	using Stacktrace  = std::stacktrace;
 
