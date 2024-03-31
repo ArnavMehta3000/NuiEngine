@@ -11,12 +11,6 @@
 #include <Core/Engine/Engine.h>
 #include <Core/Utils/Singleton.h>
 
-#define NUI_DECLARE_APP(app)                          \
-std::unique_ptr<Nui::AppBase> Nui::Internal::MakeApp()\
-{                                                     \
-	return std::make_unique<app>();                   \
-}
-
 
 // Write the windows main function
 int WINAPI wWinMain(

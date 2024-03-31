@@ -7,18 +7,20 @@ namespace Nui
 	class AppBase : public Window
 	{
 	public:
-		explicit AppBase(StringViewW appName, Window::Style style, Window::Size size);
+		explicit AppBase(WStringView appName, Window::Style style, Window::Size size);
 		virtual ~AppBase();
-
-		void Run();
-		void Quit();
 
 	private:
 		AppBase(const AppBase&) = delete;
 		AppBase(AppBase&&) = delete;
-
-	private:
-		bool m_wantsToClose;
 	};
-}
 
+}
+#define NUI_DECLARE_APP(app, ...)                 \
+namespace Nui::Internal                           \
+{                                                 \
+	std::unique_ptr<Nui::AppBase> MakeApp()       \
+	{                                             \
+		return std::make_unique<app>(__VA_ARGS__);\
+	}                                             \
+}
