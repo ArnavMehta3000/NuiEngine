@@ -7,6 +7,7 @@
 #include <format>
 #include <array>
 #include <algorithm>
+#include <functional>
 #include <unordered_map>
 
 #include <Core/Common/Types.h>
