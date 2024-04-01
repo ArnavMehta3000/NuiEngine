@@ -1,10 +1,17 @@
 #include "Core/Engine/Engine.h"
-#include "Core/ECS/Universe.h"
 #include "Core/Utils/Filesystem.h"
-#include <atomic>
+#include "Core/ECS/World.h"
 
 namespace Nui
 {
+	struct TestWorld : public ECS::World
+	{
+		TestWorld(std::string name)
+		{
+			NUI_LOG(Debug, TestWorld, "Hello World, ", name, "!");
+		}
+	};
+
 	Engine::Engine()
 		: m_isRunning(true)
 	{
@@ -22,6 +29,8 @@ namespace Nui
 		// Make application
 		m_app = Internal::MakeApp();
 		NUI_ASSERT(m_app.get(), "Failed to create application");
+
+		auto testWorld = m_app->GetUniverse()->CreateWorld<TestWorld>("Test World");
 
 		timer.Stop();
 		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
@@ -42,9 +51,8 @@ namespace Nui
 		{
 			now = updateLoop.GetElapsedSeconds();
 
-			Input::Internal::Update();
-
 			// Update application
+			m_app->Tick(dt);
 
 			dt = now - elapsed;
 			elapsed = now;

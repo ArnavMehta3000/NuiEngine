@@ -1,46 +1,53 @@
 #pragma once
-#include "Core/Utils/Factory.h"
+#include "Core/Common/CommonHeaders.h"
+#include "Core/ECS/World.h"
+
+namespace  Nui { class AppBase; }
 
 namespace Nui::ECS
 {
 
-	class World : public Nui::Factory<World>
+	class Universe
 	{
-	public:
-		World(Key) {}
-		virtual StringView GetName() = 0;
-	};
+		friend class ::Nui::AppBase;
 
-	class TestWorld : public World::Registrar<TestWorld>
-	{
 	public:
-		TestWorld() { }
+		Universe();
+		~Universe();
 
-		~TestWorld() { }
-		StringView GetName() override
+		template<typename T, typename... Args> requires std::is_base_of_v<World, T>
+		T* CreateWorld(Args&&... args)
 		{
-			return "World<T>";
+			// If a world already exists then destroy it
+			DestroyActiveWorld();
+			NUI_LOG(Info, Universe, "Creating new world of type ", typeid(T).name());
+
+			m_activeWorld = std::make_unique<T>(std::forward<Args>(args)...);
+			m_activeWorld->OnConstruct();
+
+			return dynamic_cast<T*>(m_activeWorld.get());
 		}
-	};
 
-	class TestWorld2 : public World::Registrar<TestWorld2>
-	{
-	public:
-		TestWorld2() = default;
-		TestWorld2(std::string_view name)
-			: m_name(name)
-		{}
-
-		~TestWorld2()
-		{}
-
-		StringView GetName() override
+		void DestroyActiveWorld()
 		{
-			return "World<T>";
+			if (m_activeWorld)
+			{
+				NUI_LOG(Info, Universe, "Destructing world of type ", typeid(*m_activeWorld).name());
+				
+				m_activeWorld->OnDestruct();
+				m_activeWorld.reset();
+			}
 		}
+
+		inline World* GetActiveWorld() const { return m_activeWorld.get(); }
+
+		template <typename T> requires std::is_base_of_v<World, T>
+		inline T* GetActiveWorld() const { return dynamic_cast<T*>(m_activeWorld.get()); }
 
 	private:
-		std::string m_name = "grnirg";
+		void Tick(F64 dt);
+
+	private:
+		std::unique_ptr<World> m_activeWorld;
 	};
 }
-
