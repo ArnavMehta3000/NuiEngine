@@ -10,7 +10,7 @@ namespace Nui::Log
 		/**
 		* @brief Global log file
 		*/
-		std::unique_ptr<Internal::LogFile> g_logFile{ nullptr };
+		static std::unique_ptr<Internal::LogFile> s_logFile{ nullptr };
 
 
 		/*
@@ -21,9 +21,10 @@ namespace Nui::Log
 		{
 			OutputDebugStringA(message.c_str());
 
-			if (g_logFile)
+			if (s_logFile)
 			{
-				g_logFile->Write(message);
+				s_logFile->Write(message);
+				s_logFile->Flush();
 			}
 		}
 
@@ -127,12 +128,12 @@ namespace Nui::Log
 				Nui::Filesystem::MakeDirectory(path.parent_path());
 				NUI_LOG(Debug, Log, "Created log directory: ", path.parent_path().string());
 			}
-			g_logFile = std::make_unique<LogFile>(path);
+			s_logFile = std::make_unique<LogFile>(path);
 		}
 
 		void CloseLogFile()
 		{
-			g_logFile.reset();
+			s_logFile.reset();
 		}
 	}  // namespace Internal
 
@@ -176,6 +177,7 @@ namespace Nui::Log
 			// Log with stack trace
 			Log({ LogLevel::Exception, "Assert", logMessage, trace });
 			PrintStackTrace(trace);
+			s_logFile->Flush();
 
 			throw std::runtime_error("Assertion failed");
 		}
