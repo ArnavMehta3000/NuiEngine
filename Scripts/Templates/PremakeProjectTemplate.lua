@@ -32,7 +32,8 @@ project "%PROJECT_NAME%"
 
     flags
     {
-        "MultiProcessorCompile"
+        "MultiProcessorCompile",
+        "FatalWarnings"
     }
 
     filter "configurations:Debug"

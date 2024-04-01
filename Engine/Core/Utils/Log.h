@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Common/Types.h"
+#include "Core/Utils/Timestamp.h"
 #include <fstream>
 
 namespace Nui::Log
@@ -59,7 +59,6 @@ namespace Nui::Log
 		* @note It's fine if this function is not called since the log file is automatically closed when the program exits
 		*/
 		void CloseLogFile();
-
 	}  // namespace Internal
 
 	/**
@@ -134,7 +133,7 @@ namespace Nui::Log
 		/**
 		 * @brief The timestamp of the log entry
 		 */
-		chrono::system_clock::time_point Time;
+		Timestamp Timestamp;
 
 		/**
 		 * @brief The stack trace associated with the log entry
@@ -142,16 +141,50 @@ namespace Nui::Log
 		Stacktrace Stacktrace;
 	};
 
+	template <typename... Args>
+	constexpr String Format(Args&&... args)
+	{
+		// Reference: 
+
+		// Generate formatting string
+		std::array<char, sizeof...(Args) * 3 + 1> braces{};
+		constexpr const char c[4] = "{} ";
+		
+		for (U32 i = 0u; i != braces.size(); i++)
+		{
+			braces[i] = c[i % 3];
+		}
+
+		braces.back() = '\0';
+
+		return std::vformat(StringView(braces.data()), std::make_format_args(args...));
+	}
+
+	template <typename... Args>
+	constexpr StringW FormatW(Args&&... args)
+	{
+		// Reference: 
+
+		// Generate formatting string
+		std::array<wchar_t, sizeof...(Args) * 3 + 1> braces{};
+		constexpr const wchar_t c[4] = L"{} ";
+
+		for (U32 i = 0u; i != braces.size(); i++)
+		{
+			braces[i] = c[i % 3];
+		}
+
+		braces.back() = L'\0';
+
+		return std::vformat(StringViewW(braces.data()), std::make_wformat_args(args...));
+	}
+
 	/**
 	* @brief Logs a log entry to the VS output window.
 	* @param entry The log entry
 	* @see LogEntry
 	*/
 	void Log(const LogEntry& entry);
-
-	/**
-	*/
-	String GetTimestamp(const chrono::system_clock::time_point& timePoint = chrono::system_clock::now());
 
 	/**
 	* @brief Asserts a condition and logs an error if it is not met.
@@ -166,10 +199,10 @@ namespace Nui::Log
 	void Assert(bool condition, StringView conditionString, StringView message, StringView file, I32 line, Nui::Stacktrace trace = Nui::Stacktrace::current());
 }  // namespace Nui::Log
 
-#define NUI_LOG(Level, Category, Message) Nui::Log::Log(Nui::Log::LogEntry(Nui::Log::LogLevel::Level, #Category, Message))
+#define NUI_LOG(Level, Category, ...) Nui::Log::Log(Nui::Log::LogEntry(Nui::Log::LogLevel::Level, #Category, Nui::Log::Format(__VA_ARGS__)))
 
 #if NUI_DEBUG
-#define NUI_ASSERT(Condition, Message) Nui::Log::Assert(Condition, #Condition, Message, __FILE__, __LINE__)
+#define NUI_ASSERT(Condition, ...) Nui::Log::Assert(Condition, #Condition, Nui::Log::Format(__VA_ARGS__), __FILE__, __LINE__)
 #else
-#define NUI_ASSERT(Condition, Message)
+#define NUI_ASSERT(Condition, ...)
 #endif

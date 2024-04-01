@@ -1,6 +1,6 @@
 #pragma once
-#include "Core/Common/NuiWin.h"
 #include "Core/Common/CommonHeaders.h"
+#include "Core/Input/Input.h"
 #include <map>
 #include <functional>
 
@@ -53,13 +53,6 @@ namespace Nui
 			I32 Y;
 		};
 		
-		/**
-		* @brief Window position
-		* @note This is same as Window::Size
-		* @see Nui::Window::Size
-		*/
-		using Position = Size;
-
 #define NUI_WNDPROC_ARGS Nui::Window*, UINT, WPARAM, LPARAM
 #define NUI_WNDPROC_NAMED_ARGS Nui::Window* window, UINT uMsg, WPARAM wParam, LPARAM lParam
 		using WndCallback = std::function<LRESULT(NUI_WNDPROC_ARGS)>;
@@ -73,7 +66,7 @@ namespace Nui
 		* @param position Window position
 		* @param title Window title
 		*/
-		explicit Window(Window::Style style, StringViewW title, Window::Size size = { 1280, 720 }, Window::Position position = { 500, 250 });
+		explicit Window(Window::Style style, StringViewW title, Window::Size size = { 1280, 720 });
 		
 		/**
 		* @brief Destroy the window
@@ -110,6 +103,12 @@ namespace Nui
 		* @return True if maximized
 		*/
 		bool Maximized() const;
+
+		/**
+		* @brief Check if the window has focus
+		* @return True if focused
+		*/
+		bool Focused() const;
 		
 		/**
 		* @brief Runs the window message pump and checks if the window wants to close
@@ -194,14 +193,14 @@ namespace Nui
 		Size      m_size;
 
 		/**
-		* @brief Window position
-		*/
-		Position  m_position;
-
-		/**
 		* @brief Window title
 		*/
 		StringW   m_title;
+
+		/**
+		 * @brief Is the window focused
+		 */
+		bool m_isFocused;
 
 		/**
 		* @brief Window message callbacks

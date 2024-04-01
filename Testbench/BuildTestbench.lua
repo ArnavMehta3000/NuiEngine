@@ -32,7 +32,8 @@ project "Testbench"
 
     flags
     {
-        "MultiProcessorCompile"
+        "MultiProcessorCompile",
+        "FatalWarnings"
     }
 
     filter "configurations:Debug"

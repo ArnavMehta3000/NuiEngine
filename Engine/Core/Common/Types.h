@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <stacktrace>
 #include <chrono>
+#include <limits>
 
 namespace Nui
 {
@@ -21,10 +22,15 @@ namespace Nui
 	using U32Max = uintmax_t;
 	using I32Max = intmax_t;
 
-	constexpr U64 U64InvalidId = 0xffff'ffff'ffff'ffffuI64;
-	constexpr U32 U32InvalidId = 0xffff'ffffuI32;
-	constexpr U16 U16InvalidId = 0xffffuI16;
-	constexpr U8  U8InvalidId  = 0xffuI8;
+	constexpr U64 U64InvalidId = std::numeric_limits<U64>::max();
+	constexpr U32 U32InvalidId = std::numeric_limits<U32>::max();
+	constexpr U16 U16InvalidId = std::numeric_limits<U16>::max();
+	constexpr U8  U8InvalidId  = std::numeric_limits<U8>::max();
+
+	constexpr U64 I64InvalidId = std::numeric_limits<I64>::max();
+	constexpr U32 I32InvalidId = std::numeric_limits<I32>::max();
+	constexpr U16 I16InvalidId = std::numeric_limits<I16>::max();
+	constexpr U8  I8InvalidId  = std::numeric_limits<I8>::max();
 
 	using F32 = float;
 	using F64 = double;

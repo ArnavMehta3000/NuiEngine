@@ -4,8 +4,10 @@
 namespace Nui
 {
 	/**
-	* @brief Timer class
+	* @brief Timer class 
+	* @param ClockType Custom clock type, default is high_resolution_clock
 	*/
+	template<typename ClockType = chrono::high_resolution_clock>
 	class Timer
 	{
 	private:
@@ -39,7 +41,7 @@ namespace Nui
 		*/
 		void Start()
 		{
-			m_startTime = chrono::high_resolution_clock::now();
+			m_startTime = ClockType::now();
 			m_isRunning = true;
 		}
 
@@ -48,7 +50,7 @@ namespace Nui
 		*/
 		void Stop()
 		{
-			m_endTime = chrono::high_resolution_clock::now();
+			m_endTime = ClockType::now();
 			m_isRunning = false;
 		}
 
@@ -57,7 +59,7 @@ namespace Nui
 		*/
 		void Reset()
 		{
-			m_startTime = chrono::high_resolution_clock::now();
+			m_startTime = ClockType::now();
 			m_isRunning = false;
 		}
 
@@ -87,17 +89,17 @@ namespace Nui
 		*/
 		Time GetElapsedMilliseconds()
 		{
-			chrono::time_point<chrono::high_resolution_clock> endTime;
+			chrono::time_point<ClockType> endTime;
 
-			endTime = m_isRunning ? chrono::high_resolution_clock::now() : m_endTime;
+			endTime = m_isRunning ? ClockType::now() : m_endTime;
 
 
 			return Time{ static_cast<F64>(chrono::duration_cast<std::chrono::milliseconds>(endTime - m_startTime).count()) };
 		}
 
 	private:
-		chrono::time_point<chrono::high_resolution_clock> m_startTime;
-		chrono::time_point<chrono::high_resolution_clock> m_endTime;
+		chrono::time_point<ClockType> m_startTime;
+		chrono::time_point<ClockType> m_endTime;
 		bool m_isRunning = false;
 	};
 }

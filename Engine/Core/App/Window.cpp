@@ -1,8 +1,6 @@
 #include "Window.h"
-#include "Core/Utils/Exceptions.h"
 #include <windowsx.h>
 #include <dwmapi.h>
-#include <ranges>
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -51,7 +49,6 @@ namespace Nui
 			case Window::Style::Borderless:
 			case Window::Style::BorderlessFullscreen:
 				return GetBorderlessStyle();
-				//return GetBorderlessStyle() | BorderlessFullscreen;
 			}
 
 			return StyleInternal::Windowed;
@@ -77,12 +74,12 @@ namespace Nui
 
 	}  // Anonymous namespace
 
-	Window::Window(Window::Style style, StringViewW title, Window::Size size, Window::Position position)
+	Window::Window(Window::Style style, StringViewW title, Window::Size size)
 		: m_style(style)
 		, m_title(title)
 		, m_size(size)
-		, m_position(position)
 		, m_hWnd(nullptr)
+		, m_isFocused(false)
 		, m_hInstance(GetModuleHandle(NULL))
 	{
 		MakeWindow();
@@ -111,6 +108,11 @@ namespace Nui
 		return placement.showCmd == SW_MAXIMIZE;
 	}
 
+	bool Window::Focused() const
+	{
+		return m_isFocused;
+	}
+
 	bool Window::WantsToClose() const
 	{
 		// Windows message pump
@@ -125,7 +127,6 @@ namespace Nui
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -169,30 +170,36 @@ namespace Nui
 
 		if (!::RegisterClassExW(&wcx))
 		{
-			// Log error but try to conitinue regardless
-			NUI_LOG(Error, Window, "Failed to register window class. " + GetWin32ErrorString(GetLastError()));
+			// Log error but try to continue regardless
+			NUI_LOG(Error, Window, "Failed to register window class. ", GetWin32ErrorString(GetLastError()));
 		}
-		NUI_LOG(Debug, Window, "Registered window class");
 
+		// Get window centered position
+		RECT desktopRect;
+		::GetWindowRect(::GetDesktopWindow(), &desktopRect);
+		I32 posX = (desktopRect.right / 2) - (m_size.X / 2);
+		I32 posY = (desktopRect.bottom / 2) - (m_size.Y / 2);
+
+		StyleInternal style = ConvertStyle(m_style);
 		m_hWnd = ::CreateWindowExW(
 			0,
 			s_windowClassName.c_str(),
 			m_title.c_str(),
-			ConvertStyle(m_style),
-			m_position.X,
-			m_position.Y,
-			m_size.X,
-			m_size.Y,
+			style,
+			posX, posY,
+			m_size.X, m_size.Y,
 			nullptr,
 			nullptr,
-			nullptr,
+			m_hInstance,
 			this
 		);
 
-		// 
+		NUI_ASSERT(m_hWnd, "Failed to create window, handle is nullptr");
+
+		// Apply style
 		bool fullscreen = false;
 		Style styleProxy = GetStyleProxy(m_style, fullscreen);
-		
+
 
 		if (HasStyleFlag((DWORD)styleProxy, (DWORD)Style::Borderless))
 		{
@@ -203,10 +210,9 @@ namespace Nui
 			{
 				::SetWindowLongW(m_hWnd, GWL_STYLE, static_cast<LONG>(style));
 
-				// Enable shadow if possible
 				if (IsCompositionEnabled())
 				{
-					static const MARGINS shadowState[2]{ { 0,0,0,0 },{ 1,1,1,1 } };
+					static const MARGINS shadowState[2]{ { 0, 0, 0, 0 }, { 1, 1, 1, 1 } };
 					::DwmExtendFrameIntoClientArea(m_hWnd, &shadowState[style != StyleInternal::Windowed]);
 				}
 
@@ -214,7 +220,7 @@ namespace Nui
 				::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 			}
 		}
-		
+
 		::ShowWindow(m_hWnd, fullscreen ? SW_MAXIMIZE : SW_SHOWNORMAL);
 
 		// Update window size
@@ -222,7 +228,7 @@ namespace Nui
 		AdjustWindowRect(&rect, (DWORD)m_style, FALSE);
 		m_size.X = rect.right - rect.left;
 		m_size.Y = rect.bottom - rect.top;
-
+		::UpdateWindow(m_hWnd);
 		NUI_LOG(Debug, Window, "Created window");
 	}
 
@@ -241,14 +247,9 @@ namespace Nui
 
 	LRESULT Window::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		if (m_callbacks.find(uMsg) != m_callbacks.end())
-		{
-			return m_callbacks[uMsg](this, uMsg, wParam, lParam);
-		}
-		else
-		{
-			return MessageHandler(hWnd, uMsg, wParam, lParam);
-		}
+		return m_callbacks.contains(uMsg)
+			? m_callbacks[uMsg](this, uMsg, wParam, lParam)
+			: MessageHandler(hWnd, uMsg, wParam, lParam);
 
 	}
 
@@ -265,7 +266,7 @@ namespace Nui
 		}
 		}
 
-		Window* pObj = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+		Window* pObj = reinterpret_cast<Window*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 		if (pObj)
 			return pObj->MessageRouter(hWnd, uMsg, wParam, lParam);
 		else
@@ -276,7 +277,7 @@ namespace Nui
 	{
 		switch (uMsg)
 		{
-		case WM_NCCALCSIZE: 
+		case WM_NCCALCSIZE:
 		{
 			if (wParam == TRUE && HasStyleFlag((DWORD)m_style, (DWORD)Style::Borderless))
 			{
@@ -287,29 +288,48 @@ namespace Nui
 			break;
 		}
 
-		case WM_NCHITTEST: 
+		case WM_NCHITTEST:
 		{
 			// When we have no border or title bar, we need to perform our
 			// own hit testing to allow resizing and moving.
-			if (HasStyleFlag((DWORD)m_style, (DWORD)Style::Borderless)) 
+			if (HasStyleFlag((DWORD)m_style, (DWORD)Style::Borderless))
 			{
 				return HitTest(POINT{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
 			}
 			break;
 		}
 
-		// Window is being destroyed
 		case WM_DESTROY:
+		{
 			::PostQuitMessage(0);
 			return 0;
+		}
 
-			// Window is being closed
 		case WM_CLOSE:
 		{
 			DestroyWindow(hWnd);
 			return 0;
 		}
+
+		case WM_SETFOCUS:
+		{
+			m_isFocused = true;
+			return 0;
 		}
+
+		case WM_KILLFOCUS:
+		{
+			m_isFocused = false;
+			return 0;
+		}
+		}
+
+		if (Input::Internal::ProcessInputWndProc(hWnd, uMsg, wParam, lParam))
+		{
+			// Message was processed by input system
+			return 0;
+		}
+
 
 		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
@@ -331,7 +351,7 @@ namespace Nui
 			return HTNOWHERE;
 		}
 
-		enum region_mask 
+		enum region_mask
 		{
 			client = 0b0000,
 			left   = 0b0001,
@@ -346,7 +366,7 @@ namespace Nui
 			top    * (cursor.y < (window.top + border.y)) |
 			bottom * (cursor.y >= (window.bottom - border.y));
 
-		switch (result) 
+		switch (result)
 		{
 		case left          : return HTLEFT;
 		case right         : return HTRIGHT;
