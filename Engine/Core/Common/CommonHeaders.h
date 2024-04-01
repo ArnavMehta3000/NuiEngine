@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <deque>
 #include <queue>
 #include <format>
 #include <array>

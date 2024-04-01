@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Math/Types.h"
-#include "Core/Math/SimpleMath.h"
+#include "Core/External/DirectXTK/SimpleMath.h"
 
 namespace Nui::Math
 {
