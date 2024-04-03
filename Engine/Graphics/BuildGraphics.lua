@@ -1,25 +1,25 @@
 
-project "%PROJECT_NAME%"
-    kind "WindowedApp"
+project "NuiGraphics"
+    kind "StaticLib"
     language "C++"
     cppdialect "C++latest"
-
     local baseDir = "%{wks.location}/Build/"
 
     targetdir(baseDir .. "%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
     objdir(baseDir .. "Intermediate/%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
     debugdir(baseDir .. "%{cfg.architecture}-%{cfg.buildcfg}/%{prj.name}/")
-    targetname "%PROJECT_NAME%"
+    targetname "NuiGraphics"
 
-    location "%PROJECT_DIR%"
+    location "%{wks.location}/Engine/Graphics/"
     links
     {
-        "NuiCore",
-        "NuiGraphics"
+        "NuiCore"
     }
 
     includedirs 
     {
+        "%{prj.location}/",
+        "%{prj.location}/../",
         "%{wks.location}/Engine/",
     }
 
@@ -28,6 +28,7 @@ project "%PROJECT_NAME%"
         "%{prj.location}/**.h",
         "%{prj.location}/**.hpp",
         "%{prj.location}/**.cpp",
+        "%{prj.location}/**.inl",
         "%{prj.location}/**.ixx",
     }
 
