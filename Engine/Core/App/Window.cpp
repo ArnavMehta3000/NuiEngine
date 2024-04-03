@@ -8,7 +8,7 @@ namespace Nui
 {
 	namespace  // Anonymous namespace
 	{
-		static const StringW s_windowClassName = L"NuiApp";
+		static const WString s_windowClassName = L"NuiApp";
 
 		bool HasStyleFlag(DWORD style, DWORD flag)
 		{
@@ -74,7 +74,7 @@ namespace Nui
 
 	}  // Anonymous namespace
 
-	Window::Window(Window::Style style, StringViewW title, Window::Size size)
+	Window::Window(Window::Style style, WStringView title, Window::Size size)
 		: m_style(style)
 		, m_title(title)
 		, m_size(size)
@@ -240,7 +240,7 @@ namespace Nui
 		return { rect.right - rect.left, rect.bottom - rect.top };
 	}
 
-	void Window::SetWindowTitle(StringW title)
+	void Window::SetWindowTitle(WString title)
 	{
 		::SetWindowTextW(m_hWnd, title.c_str());
 	}

@@ -1,82 +1,54 @@
 #include "World.h"
+#include "Core/ECS/Entity.h"
 
 namespace Nui::ECS
 {
-	EntityId World::CreateEntity()
+	World::~World()
 	{
-		using namespace Nui::ECS::Internal;
-		// If we have any free index, then create a new entity from that
-		if (!m_freeEntities.empty())
-		{
-			EntityIndex newIndex = m_freeEntities.back();
-			m_freeEntities.pop_back();
-
-			EntityVersion newVersion = GetEntityVersion(m_entities[newIndex].Id);
-			EntityId newEntity = CreateEntityId(newIndex, newVersion);
-
-			m_entities[newIndex].Id = newEntity;
-			return newEntity;
-		}
-
-		// No index was free, create a new entity
-		m_entities.emplace_back(Internal::EntityInfo
-		{
-			Internal::CreateEntityId(EntityIndex(m_entities.size()), 0),
-			ComponentMask(),
-		});
-
-		// Return the recently added entity id
-		return m_entities.back().Id;
+		m_registry.clear();
+	}
+	void World::OnConstruct()
+	{
 	}
 
-	void World::MarkForDelete(EntityId id)
+	void World::PreUpdate(F64 dt)
 	{
-		m_markedForDelete.push_back(id);
-	}
-
-	bool World::IsValidEntity(EntityId id)
-	{
-		bool valid = Internal::IsEntityIdValid(id);
-		bool exists = m_entities[Internal::GetEntityIndex(id)].Id == id;
-
-		return valid && exists;
-	}
-
-	void World::Cleanup()
-	{
-		using namespace Nui::ECS::Internal;
-
-		bool deletedAny = false;
-		for (EntityId id : m_markedForDelete)
+		if (m_entitiesToDestroy.size() > 0)
 		{
-			deletedAny = true;
+			// Delete all queued entities before frame
+			for (auto& entity : m_entitiesToDestroy)
+			{
+				m_registry.destroy(entity);
+			}
 
-			// Invalidate current index and increment version number
-			m_entities[GetEntityIndex(id)].Id = CreateEntityId(EntityIndex(-1), GetEntityVersion(id) + 1);
-			// Clear component mask
-			m_entities[GetEntityIndex(id)].Mask.reset();
-
-			m_freeEntities.push_back(GetEntityIndex(id));
-		}
-
-		if (deletedAny)
-		{
-			m_markedForDelete.clear();
+			m_entitiesToDestroy.clear();
 		}
 	}
 
-	U64 World::GetAliveCount() const
+	void World::OnUpdate(F64 dt)
 	{
-		return m_entities.size() - m_freeEntities.size();
 	}
 
-	U64 World::GetEntityPoolSize() const
+	void World::PostUpdate(F64 dt)
 	{
-		return m_entities.size();
 	}
 
-	U64 World::GetFreeEntityCount() const
+	void World::OnDestruct()
 	{
-		return m_freeEntities.size();
+	}
+
+	Entity World::CreateEntity()
+	{
+		return Entity(entt::null, this);
+	}
+
+	void World::DestroyEntity(Entity entity)
+	{
+		m_entitiesToDestroy.push_back(entity);
+	}
+
+	void World::DestroyAllEntities()
+	{
+		m_registry.clear();
 	}
 }

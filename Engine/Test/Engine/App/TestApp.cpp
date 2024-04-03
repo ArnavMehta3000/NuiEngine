@@ -8,3 +8,5 @@ TestApp::TestApp(Nui::Window::Style style)
 TestApp::~TestApp()
 {
 }
+
+NUI_DECLARE_APP(TestApp, Nui::Window::Style::Windowed)

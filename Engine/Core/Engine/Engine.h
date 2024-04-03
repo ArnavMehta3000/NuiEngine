@@ -12,17 +12,18 @@ namespace Nui
 	class Engine
 	{
 	public:
-
-		static Engine& Get();
-		void Run();
-
-	private:
 		Engine();
 		~Engine();
-		Engine(const Engine&) = delete;
-		Engine(Engine&&) = delete;
+
+		void Run();
+		void Quit();
+
+		inline F64 GetEngineUpTime() const noexcept { return m_engineTimer.GetElapsedSeconds(); }
+		AppBase* GetApp() const noexcept;
 
 	private:
 		std::unique_ptr<AppBase> m_app;
+		bool m_isRunning;
+		Timer m_engineTimer;
 	};
 }
