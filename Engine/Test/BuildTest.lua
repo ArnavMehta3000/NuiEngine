@@ -15,8 +15,7 @@ project "NuiTest"
 	links
 	{
 		"NuiCore",
-		--"$(CoreLibraryDependencies)"
-
+		"NuiGraphics"
 	}
 
 	includedirs 
