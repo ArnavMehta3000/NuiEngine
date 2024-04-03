@@ -4,8 +4,6 @@
 
 namespace Nui
 {
-	class Window;
-
 	namespace Input
 	{
 		namespace Internal
@@ -15,13 +13,13 @@ namespace Nui
 			void Update();
 		}
 
-		const [[nodiscard]] Mouse::Point& GetMousePosition();
-		const [[nodiscard]] Mouse::Point& GetMouseRawDelta();
-		const [[nodiscard]] Mouse::WheelInfo& GetMouseWheelH();
-		const [[nodiscard]] Mouse::WheelInfo& GetMouseWheelV();
-		const [[nodiscard]] Mouse::ButtonState& GetMouseButton(Mouse::Button btn);
-		const [[nodiscard]] Mouse::ButtonState& GetMouseButton(U32 btn);
+		[[nodiscard]] const Mouse::Point& GetMousePosition();
+		[[nodiscard]] const Mouse::Point& GetMouseRawDelta();
+		[[nodiscard]] const Mouse::WheelInfo& GetMouseWheelH();
+		[[nodiscard]] const Mouse::WheelInfo& GetMouseWheelV();
+		[[nodiscard]] const Mouse::ButtonState& GetMouseButton(Mouse::Button btn);
+		[[nodiscard]] const Mouse::ButtonState& GetMouseButton(U32 btn);
 
-		const [[nodiscard]] Keyboard::KeyState& GetKeyState(KeyCode key);
+		[[nodiscard]] const Keyboard::KeyState& GetKeyState(KeyCode key);
 	}
 }

@@ -51,6 +51,7 @@ namespace Nui
 		{
 			now = updateLoop.GetElapsedSeconds();
 
+			Input::Internal::Update();
 			// Update application
 			m_app->Tick(dt);
 
