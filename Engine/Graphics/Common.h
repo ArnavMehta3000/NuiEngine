@@ -41,8 +41,8 @@ namespace Nui::Graphics
 		const char* what() const noexcept override
 		{
 			static char s_str[512] = {};
-			sprintf_s(s_str, "HRESULT Error in file %s(%u). %s\n Expression: %s",
-				m_file.c_str(), m_line, GetWin32ErrorString(m_result).c_str(), m_expression.c_str());
+			sprintf_s(s_str, "DXCall caught an exception\nMessage: %s\nExpression: %s\nFile: %s(%u)",
+				GetWin32ErrorString(m_result).c_str(), m_expression.c_str(), m_file.c_str(), m_line);
 			
 			return s_str;
 		}
@@ -54,11 +54,11 @@ namespace Nui::Graphics
 		U32 m_line;
 	};
 
-	inline void ThrowIfFailed(HRESULT hr, StringView expression)
+	inline void ThrowIfFailed(HRESULT hr, StringView expression, StringView file, U32 line)
 	{
 		if (FAILED(hr))
 		{
-			throw com_exception(hr, expression, __FILE__, __LINE__);
+			throw com_exception(hr, expression, file, line);
 		}
 	}
 
@@ -96,7 +96,7 @@ namespace Nui::Graphics
 
 	}
 
-#define DXCall(expr) ThrowIfFailed(expr, #expr)
+#define DXCall(expr) ThrowIfFailed(expr, #expr, __FILE__, __LINE__)
 // Align to float4 (16 bytes)
 #define Float4Align __declspec(align(16))
 }
