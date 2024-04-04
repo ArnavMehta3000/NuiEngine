@@ -30,10 +30,10 @@ namespace Nui
 	constexpr U16 U16InvalidId = std::numeric_limits<U16>::max();
 	constexpr U8  U8InvalidId  = std::numeric_limits<U8>::max();
 
-	constexpr U64 I64InvalidId = std::numeric_limits<I64>::max();
-	constexpr U32 I32InvalidId = std::numeric_limits<I32>::max();
-	constexpr U16 I16InvalidId = std::numeric_limits<I16>::max();
-	constexpr U8  I8InvalidId  = std::numeric_limits<I8>::max();
+	constexpr I64 I64InvalidId = std::numeric_limits<I64>::max();
+	constexpr I32 I32InvalidId = std::numeric_limits<I32>::max();
+	constexpr I16 I16InvalidId = std::numeric_limits<I16>::max();
+	constexpr I8  I8InvalidId  = std::numeric_limits<I8>::max();
 
 	using F32 = float;
 	using F64 = double;
