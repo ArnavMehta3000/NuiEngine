@@ -1,22 +1,22 @@
-#include "DeviceResources.h"
+#include "D3DManager.h"
 
 namespace Nui::Graphics
 {
-	DeviceResources::DeviceResources()
-		: m_backBufferFormat(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB)
+	D3DManager::D3DManager()
+		: m_backBufferFormat(DXGI_FORMAT_B8G8R8A8_UNORM)
 		, m_backBufferWidth(1280)
 		, m_backBufferHeight(720)
 		, m_multiSampleCount(1)
 		, m_multiSampleQuality(0)
 		, m_featureLevel(D3D_FEATURE_LEVEL_11_1)
-		, m_minFeatureLevel(D3D_FEATURE_LEVEL_10_0)
+		, m_minFeatureLevel(D3D_FEATURE_LEVEL_11_0)
 		, m_vsync(true)
 		, m_refreshRate({ 0, 0 })
 		, m_numVSYNCIntervals(1)
 	{
 	}
 
-	DeviceResources::~DeviceResources()
+	D3DManager::~D3DManager()
 	{
 		if (m_immediateContext)
 		{
@@ -34,7 +34,7 @@ namespace Nui::Graphics
 		SafeReleaseCOM(m_factory.ReleaseAndGetAddressOf());
 	}
 
-	bool DeviceResources::Init(HWND outputWindow)
+	bool D3DManager::Init(HWND outputWindow)
 	{
 		// Get window size
 		m_hWnd = outputWindow;
@@ -60,21 +60,34 @@ namespace Nui::Graphics
 		desc.SampleDesc.Count            = m_multiSampleCount;
 		desc.SampleDesc.Quality          = m_multiSampleQuality;
 		desc.BufferUsage                 = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		desc.Flags                       = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-		desc.SwapEffect                  = DXGI_SWAP_EFFECT_DISCARD;
+		desc.Flags                       = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		desc.SwapEffect                  = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.OutputWindow                = outputWindow;
 		desc.Windowed                    = TRUE;  // TODO: Support proper fullscreen
 
-		U32 flags = 0;
-#if NUI_DEBUG
-		flags |= D3D11_CREATE_DEVICE_DEBUG;
+		U32 creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#ifdef NUI_DEBUG
+		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+
+
 		ComPtr<ID3D11Device> device;
 		ComPtr<ID3D11DeviceContext> context;
 		ComPtr<IDXGISwapChain> swapChain;
-		DXCall(::D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags,
-			NULL, 0, D3D11_SDK_VERSION, &desc, swapChain.ReleaseAndGetAddressOf(),
-			device.ReleaseAndGetAddressOf(), NULL, context.ReleaseAndGetAddressOf()));
+		DXCall(::D3D11CreateDeviceAndSwapChain(
+			nullptr,
+			D3D_DRIVER_TYPE_HARDWARE,
+			NULL,
+			creationFlags,
+			&m_featureLevel,
+			1,
+			D3D11_SDK_VERSION,
+			&desc,
+			swapChain.ReleaseAndGetAddressOf(),
+			device.ReleaseAndGetAddressOf(),
+			NULL,
+			context.ReleaseAndGetAddressOf())
+		);
 
 		DXCall(device.As(&m_device));
 		DXCall(context.As(&m_immediateContext));
@@ -90,6 +103,7 @@ namespace Nui::Graphics
 			return false;
 		}
 
+#if NUI_DEBUG
 		if (D3DPERF_GetStatus() == 0)
 		{
 			ID3D11InfoQueue* infoQueue;
@@ -97,13 +111,15 @@ namespace Nui::Graphics
 			infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
 			infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
 		}
+#endif // NUI_DEBUG
+
 
 		AfterReset();
 
 		return true;
 	}
 
-	void DeviceResources::Reset()
+	void D3DManager::Reset()
 	{
 		if (m_swapChain)
 		{
@@ -122,7 +138,7 @@ namespace Nui::Graphics
 		}
 	}
 
-	void DeviceResources::Present()
+	void D3DManager::Present()
 	{
 		if (!m_device)
 			throw std::runtime_error("Attempted to present with invalid graphics device!");
@@ -131,22 +147,15 @@ namespace Nui::Graphics
 		DXCall(m_swapChain->Present(interval, 0));
 	}
 
-	void DeviceResources::CheckForSuitableOutput()
+	void D3DManager::CheckForSuitableOutput()
 	{
 		HRESULT hr = ::CreateDXGIFactory1(IID_PPV_ARGS(&m_factory));
 		if (FAILED(hr))
 			throw std::runtime_error("Unable to create DXGI 1.1 factory");
 
 		// Look for an adapter that supports Direct3D 11
-		ComPtr<IDXGIAdapter1> currentAdapter;
-		LARGE_INTEGER umdVersion;
-		while (!m_adapter && SUCCEEDED(m_factory->EnumAdapters1(0, m_adapter.ReleaseAndGetAddressOf())))
-		{
-			if (SUCCEEDED(m_adapter->CheckInterfaceSupport(__uuidof(ID3D11Device), &umdVersion)))
-			{
-				m_adapter = currentAdapter;
-			}
-		}
+		DXCall(m_factory->EnumAdapters1(0, m_adapter.ReleaseAndGetAddressOf()));
+		
 
 		// We'll just use the first output
 		DXCall(m_adapter->EnumOutputs(0, m_output.ReleaseAndGetAddressOf()));
@@ -187,7 +196,7 @@ namespace Nui::Graphics
 		SetDebugName(m_adapter, "Adapter");
 	}
 
-	void DeviceResources::AfterReset()
+	void D3DManager::AfterReset()
 	{
 		DXCall(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_bbTexture.ReleaseAndGetAddressOf())));
 		DXCall(m_device->CreateRenderTargetView(m_bbTexture.Get(), NULL, m_bbRTView.ReleaseAndGetAddressOf()));

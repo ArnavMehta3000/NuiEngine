@@ -1,23 +1,23 @@
 #pragma once
-#include "Graphics/Common/Common.h"
+#include "Graphics/Common.h"
 
 namespace Nui::Graphics
 {
 	/**
 	 * @brief Class managing DirectX 11 device resources including device, context, swap chain, and render target.
 	 */
-	class DeviceResources
+	class D3DManager
 	{
 	public:
 		/**
 		 * @brief Default constructor.
 		 */
-		DeviceResources();
+		D3DManager();
 
 		/**
 		 * @brief Destructor.
 		 */
-		~DeviceResources();
+		~D3DManager();
 
 		/**
 		 * @brief Initializes the device resources.
