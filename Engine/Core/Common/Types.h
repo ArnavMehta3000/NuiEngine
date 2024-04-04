@@ -7,6 +7,9 @@
 #include <chrono>
 #include <limits>
 
+#undef min
+#undef max
+
 namespace Nui
 {
 	using I8 = int8_t;
