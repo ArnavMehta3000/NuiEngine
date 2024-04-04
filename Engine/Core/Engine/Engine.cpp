@@ -1,9 +1,11 @@
 #include "Core/Engine/Engine.h"
 #include "Core/Utils/Filesystem.h"
 #include "Core/ECS/World.h"
+#include <Graphics/Graphics.h>
 
 namespace Nui
 {
+
 	struct TestWorld : public ECS::World
 	{
 		TestWorld(std::string name)
@@ -31,6 +33,17 @@ namespace Nui
 		NUI_ASSERT(m_app.get(), "Failed to create application");
 
 		auto testWorld = m_app->GetUniverse()->CreateWorld<TestWorld>("Test World");
+		try
+		{
+			Graphics::Init(m_app->GetHWND());
+		}
+		catch (const std::exception& e)
+		{
+#if NUI_RELEASE
+			std::ignore = e; // To get rid of unreferenced parameter warning
+#endif
+			NUI_ASSERT(false, "Renderer initialization failed: ", e.what());
+		}
 
 		timer.Stop();
 		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
@@ -52,8 +65,14 @@ namespace Nui
 			now = updateLoop.GetElapsedSeconds();
 
 			Input::Internal::Update();
+
 			// Update application
 			m_app->Tick(dt);
+
+			//auto ctx = m_deviceResources->GetImmediateContext();
+			//F32 clearColor[4] = { 1, 0, 0,1 };
+			//ctx->ClearRenderTargetView(m_deviceResources->GetBackBuffer(), clearColor);
+			//m_deviceResources->Present();
 
 			dt = now - elapsed;
 			elapsed = now;
@@ -73,6 +92,8 @@ namespace Nui
 		timer.Start();
 
 		NUI_LOG(Debug, Engine, "Shutting down Nui Engine...");
+
+		Graphics::Shutdown();
 		m_app.reset();
 
 		timer.Stop();
