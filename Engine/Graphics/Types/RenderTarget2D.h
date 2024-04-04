@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/Common/Common.h"
+#include "Graphics/Common.h"
 
 namespace Nui::Graphics
 {

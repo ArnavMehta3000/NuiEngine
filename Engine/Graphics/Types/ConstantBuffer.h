@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/Common/Common.h"
+#include "Graphics/Common.h"
 
 namespace Nui::Graphics
 {
@@ -41,7 +41,7 @@ namespace Nui::Graphics
 			desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			desc.MiscFlags      = 0;
-			desc.ByteWidth      = static_cast<uint32>(sizeof(T) + (16 - (sizeof(T) % 16)));
+			desc.ByteWidth      = static_cast<U32>(sizeof(T) + (16 - (sizeof(T) % 16)));
 
 			if (gpuWritable)
 			{
