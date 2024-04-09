@@ -16,7 +16,6 @@ namespace Nui
 		}
 
 		s_currentApp = this;
-		m_universe = std::make_unique<ECS::Universe>();
 	}
 
 	AppBase::~AppBase()
@@ -26,6 +25,5 @@ namespace Nui
 
 	void AppBase::Tick(F64 dt)
 	{
-		m_universe->Tick(dt);
 	}
 }
