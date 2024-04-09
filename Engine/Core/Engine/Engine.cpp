@@ -40,7 +40,7 @@ namespace Nui
 		catch (const std::exception& e)
 		{
 #if NUI_RELEASE
-			std::ignore = e; // To get rid of unreferenced parameter warning
+			NUI_LOG(Exception, Renderer, "Renderer initialization failed: ", e.what());
 #endif
 			NUI_ASSERT(false, "Renderer initialization failed: ", e.what());
 		}
