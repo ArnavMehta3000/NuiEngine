@@ -1,5 +1,5 @@
 #pragma once
-#include <Common/Types.h>
+#include "Core/Common/Types.h"
 #include <functional>
 
 namespace Nui::ECS
@@ -8,7 +8,7 @@ namespace Nui::ECS
 	{
 	public:
 		virtual ~IRecursor() = default;
-		virtual void Run() = 0;
+		virtual void Update(F64 dt) = 0;
 	};
 
 
@@ -16,7 +16,7 @@ namespace Nui::ECS
 	class HierarchicalRecursor : public IRecursor
 	{
 	public:
-		using Callback = std::function<RetType(NodeType&)>;
+		using Callback = std::function<RetType(NodeType&, F64)>;
 
 	public:
 		virtual ~HierarchicalRecursor() = default;
@@ -38,7 +38,7 @@ namespace Nui::ECS
 	{
 	public:
 		using iterator = IterType;
-		using Callback = std::function<RetType(NodeType)>;
+		using Callback = std::function<RetType(NodeType, F64)>;
 
 	public:
 		virtual ~SequentialRecursor() = default;

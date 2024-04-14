@@ -4,13 +4,13 @@
 
 namespace Nui::ECS
 {
-	class World
+	class Context
 	{
 	public:
 		inline EntityManager& GetEntityManager() { return m_entityManager; }
 		inline SystemManager& GetSystemManager() { return m_systemManager; }
 
-		void Update();
+		void Update(F64 dt);
 
 	private:
 		EntityManager m_entityManager;

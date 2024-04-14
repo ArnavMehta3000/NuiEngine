@@ -14,11 +14,11 @@ namespace Nui::ECS
 		SystemManager& operator=(const SystemManager&) = delete;
 		SystemManager& operator=(SystemManager&&) = default;
 
-		void AddSequentialSystem(std::unique_ptr<SequentialSystemBase> system);
-		void AddHierarchicalSystem(std::unique_ptr<HierarchicalSystem> system);
+		void AddSystem(std::unique_ptr<SequentialSystemBase> system);
+		void AddSystem(std::unique_ptr<HierarchicalSystem> system);
 
-		void Run(Components::Node& node);
-		void Run(typename EntityManager::iterator begin, typename EntityManager::iterator end);
+		void Update(Components::Node& node, F64 dt);
+		void Update(typename EntityManager::iterator begin, typename EntityManager::iterator end, F64 dt);
 
 	private:
 		std::vector<std::unique_ptr<ISystem>> m_systems;

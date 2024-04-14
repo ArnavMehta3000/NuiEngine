@@ -25,8 +25,10 @@ namespace Nui::ECS
 		inline Id GetId() const { return m_id; }
 		virtual bool IsUnique() { return true; }
 		inline Entity* GetOwner() const { return m_entity; }
+		inline bool IsDirty() const { return m_isDirty; }
 
 	private:
+		U8 m_isDirty;
 		Id m_id;
 		Entity* m_entity;
 	};
@@ -49,13 +51,22 @@ namespace Nui::ECS
 
 	namespace Internal
 	{
-		extern Component::Id s_componentCounter;
+		extern Component::Id s_nextId;
+
+		template <typename T>
+		struct TypeId 
+		{
+			static Component::Id Value()
+			{
+				static Component::Id typeId = s_nextId++;
+				return typeId;
+			}
+		};
 	}
 
 	template <typename T>
 	static inline Component::Id GetTypeId()
 	{
-		static Component::Id id = Internal::s_componentCounter++;
-		return id;
+		return Internal::TypeId<T>::Value();
 	}
 }

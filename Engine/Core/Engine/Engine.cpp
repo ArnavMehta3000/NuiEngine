@@ -32,6 +32,8 @@ namespace Nui
 
 	void Engine::Run()
 	{
+		m_app->OnInit();
+
 		Timer updateLoop;
 		updateLoop.Start();
 
@@ -49,6 +51,8 @@ namespace Nui
 		}
 
 		updateLoop.Stop();
+
+		m_app->OnShutdown();
 	}
 
 	void Engine::Quit()

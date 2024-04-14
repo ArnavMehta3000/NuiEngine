@@ -1,14 +1,22 @@
 #include "EntityManager.h"
+#include "Core/Engine/Components/Transform.h"
+#include "Core/Engine/Components/Node.h"
 
 namespace Nui::ECS
 {
 	Entity& EntityManager::CreateEntity()
 	{
-		Entity e;
-		Entity::Id id = e.GetId();
-		m_entities[id] = std::move(e);
+		Entity newEntity;
 
-		return m_entities[id];
+		Entity::Id id = newEntity.GetId();
+		m_entities[id] = std::move(newEntity);
+
+		// Every entity has at least transform and node
+		Entity& e = m_entities[id];
+		e.AddComponent(std::make_shared<Components::Transform>())
+			.AddComponent(std::make_shared<Components::Node>());
+		
+		return e;
 	}
 
 	void EntityManager::AddExisting(Entity&& e)

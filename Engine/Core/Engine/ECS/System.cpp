@@ -2,13 +2,13 @@
 
 namespace Nui::ECS
 {
-	void HierarchicalSystem::Run()
+	void HierarchicalSystem::Update(F64 dt)
 	{
 		auto& root = GetRoot();
-		auto& result = GetCallback();
+		auto& callback = GetCallback();
 
-		Init();
-		root.Visit(result);
+		OnInit();
+		root.Visit(callback, dt);
 		Shutdown();
 	}
 }

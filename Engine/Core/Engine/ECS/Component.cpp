@@ -2,7 +2,10 @@
 
 namespace Nui::ECS
 {
-	Component::Id Internal::s_componentCounter = 0;
+	namespace Internal
+	{
+		Component::Id s_nextId = 0;
+	}
 
 	namespace  // Anonymous namespace
 	{
@@ -11,6 +14,8 @@ namespace Nui::ECS
 
 	Component::Component()
 		: m_id(s_idCounter++)
+		, m_entity(nullptr)
+		, m_isDirty(true)
 	{
 	}
 
@@ -18,14 +23,14 @@ namespace Nui::ECS
 	{
 		this->m_id = s_idCounter++;
 		this->m_entity = other.m_entity;
+		this->m_isDirty = other.m_isDirty;
 	}
 
 	Component& Component::operator=(const Component& other) noexcept
 	{
 		this->m_id = s_idCounter;
 		this->m_entity = other.m_entity;
+		this->m_isDirty = other.m_isDirty;
 		return *this;
 	}
-
-
 }

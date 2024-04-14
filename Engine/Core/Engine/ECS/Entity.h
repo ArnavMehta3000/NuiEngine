@@ -24,14 +24,15 @@ namespace Nui::ECS
 		Entity& AddComponent(std::shared_ptr<C> comp)
 		{
 			comp->m_entity = this;
+			const Component::Id id = GetTypeId<C>();
 
 			if (comp->IsUnique())
 			{
-				m_components[GetTypeId<C>()].clear();
+				m_components[id].clear();
 			}
 
-			m_components[GetTypeId<C>()].push_back(std::static_pointer_cast<Component>(comp));
-			m_componentIds.insert(GetTypeId<C>());
+			m_components[id].push_back(std::static_pointer_cast<Component>(comp));
+			m_componentIds.insert(id);
 
 			return *this;
 		}
@@ -42,7 +43,8 @@ namespace Nui::ECS
 		template <typename C = Component, typename = std::enable_if_t<std::is_base_of_v<Component, C>>>
 		ComponentVector<C> Query() const
 		{
-			return QueryInternal<C>(GetTypeId<C>());
+			const Component::Id id = GetTypeId<C>();
+			return QueryInternal<C>(id);
 		}
 
 		iterator begin() { return m_componentIds.begin(); }
@@ -55,7 +57,8 @@ namespace Nui::ECS
 		{
 			ComponentVector<C> result;
 
-			if (m_componentIds.find(compId) == m_componentIds.end())
+			auto it = m_componentIds.find(compId);
+			if (it != m_componentIds.end())
 			{
 				const ComponentVector<>& cv = this->m_components.at(compId);
 				result = cv;

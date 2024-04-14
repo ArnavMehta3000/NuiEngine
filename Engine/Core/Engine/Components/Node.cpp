@@ -43,7 +43,7 @@ namespace Nui::Components
 		}
 	}
 
-	void Node::Visit(std::function<bool(Node&)> fn)
+	void Node::Visit(std::function<bool(Node&, F64)> fn, F64 dt)
 	{
 		std::vector<Node*> nodes = { this };
 
@@ -52,7 +52,7 @@ namespace Nui::Components
 			Node* node = nodes.back();
 			nodes.pop_back();
 
-			bool continueTraversal = fn(*node);
+			bool continueTraversal = fn(*node, dt);
 
 			if (!continueTraversal || node->ShouldPrune())
 			{

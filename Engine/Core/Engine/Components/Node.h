@@ -20,7 +20,7 @@ namespace Nui::Components
 		inline void Prune(bool enable) { m_shouldPrune = enable; }
 		inline const std::vector<NodePtr> GetChildren() const { return m_children; }
 
-		void Visit(std::function<bool(Node&)> fn);
+		void Visit(std::function<bool(Node&, F64)> fn, F64 dt);
 
 	private:
 		std::vector<NodePtr> m_children;

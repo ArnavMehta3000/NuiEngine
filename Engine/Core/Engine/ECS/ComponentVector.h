@@ -18,7 +18,8 @@ namespace Nui::ECS
 		template <typename T = Component>
 		ComponentVector<C>& operator=(const ComponentVector<T>& other)
 		{
-			*static_cast<Container*>(this) = static_cast<const Container*>(other);
+			using vect = std::vector<std::shared_ptr<Component>>;
+			*static_cast<vect*>(this) = *static_cast<const vect*>(&other);
 			return *this;
 		}
 

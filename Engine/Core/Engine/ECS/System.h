@@ -9,14 +9,14 @@ namespace Nui::ECS
 	{
 	public:
 		~ISystem() = default;
-		virtual void Init() {};
+		virtual void OnInit() {};
 		virtual void Shutdown() {};
 	};
 
 	class HierarchicalSystem : public ISystem, public HierarchicalRecursor<Components::Node, bool>
 	{
 	public:
-		void Run() override;
+		void Update(F64 dt) override;
 	};
 
 	class SequentialSystemBase : public ISystem {};
@@ -25,12 +25,12 @@ namespace Nui::ECS
 	class SequentialSystem : public SequentialSystemBase, public SequentialRecursor<std::shared_ptr<C>, void, EntityManager::iterator>
 	{
 	public:
-		void Run() override
+		void Update(F64 dt) override
 		{
 			using Rec = SequentialRecursor<std::shared_ptr<C>, void, EntityManager::iterator>;
 
 
-			Init();
+			OnInit();
 
 			for (auto it = this->begin(); it != this->end(); it++)
 			{
@@ -41,7 +41,7 @@ namespace Nui::ECS
 
 				for (std::shared_ptr<Component> c : vec)
 				{
-					this->GetCallback()(std::static_pointer_cast<C>(c));
+					this->GetCallback()(std::static_pointer_cast<C>(c), dt);
 				}
 			}
 
