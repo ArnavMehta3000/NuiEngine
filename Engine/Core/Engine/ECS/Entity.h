@@ -1,77 +1,206 @@
 #pragma once
-#include "Core/Engine/ECS/ComponentVector.h"
-#include <set>
+#include "Core/Engine/ECS/Component.h"
 
 namespace Nui::ECS
 {
-	class Entity final
+	class Entity
 	{
+		friend class Context;
 	public:
-		using Id = U64;
-		using iterator = std::multiset<Component::Id>::iterator;
+		constexpr static U64 InvalidId = 0;
 
-		Entity();
-		Entity(const Entity& other);
-		Entity(Entity&& other) = default;
-		~Entity() = default;
+	public:
+		Entity(Context* context, U64 id) : m_context(context), m_id(id) {}
+		~Entity() { RemoveAll(); }
 
-		Entity& operator=(const Entity& other) = delete;
-		Entity& operator=(Entity&& other) = default;
+		inline Context* GetContext() const noexcept { return m_context; }
+		inline U64 GetId() const noexcept { return m_id; }
+		inline bool IsPendingDestroy() const noexcept { return m_pendingDestroy; }
 
-		inline Id GetId() const { return m_id; }
-
-		template <typename C = Component, typename = std::enable_if_t<std::is_base_of_v<Component, C>>>
-		Entity& AddComponent(std::shared_ptr<C> comp)
+		template<typename T>
+		bool Has() const
 		{
-			comp->m_entity = this;
-			const Component::Id id = GetTypeId<C>();
-
-			if (comp->IsUnique())
-			{
-				m_components[id].clear();
-			}
-
-			m_components[id].push_back(std::static_pointer_cast<Component>(comp));
-			m_componentIds.insert(id);
-
-			return *this;
+			TypeIndex index = GetTypeIndex<T>();
+			return m_components.find(index) != m_components.end();
 		}
 
-		void RemoveComponent(Component::Id compId);
-		void RemoveAllComponentsWithId(Component::Id compId);
-
-		template <typename C = Component, typename = std::enable_if_t<std::is_base_of_v<Component, C>>>
-		ComponentVector<C> Query() const
+		template<typename T, typename V, typename... Types>
+		bool Has() const
 		{
-			const Component::Id id = GetTypeId<C>();
-			return QueryInternal<C>(id);
+			return Has<T>() && Has<V, Types...>();
 		}
 
-		iterator begin() { return m_componentIds.begin(); }
-		iterator end() { return m_componentIds.end(); }
+		template<typename T, typename... Args>
+		ComponentHandle<T> Add(Args&&... args);
 
-	private:
+		template<typename T>
+		ComponentHandle<T> Get();
 
-		template <typename C = Component, typename = std::enable_if_t<std::is_base_of_v<Component, C>>>
-		ComponentVector<C> QueryInternal(Component::Id compId) const
+		template<typename T>
+		bool Remove();
+
+		void RemoveAll();
+
+		template<typename... Types>
+		bool With(typename std::common_type<std::function<void(ComponentHandle<Types>...)>>::type view)
 		{
-			ComponentVector<C> result;
+			if (!Has<Types...>())
+				return false;
 
-			auto it = m_componentIds.find(compId);
-			if (it != m_componentIds.end())
-			{
-				const ComponentVector<>& cv = this->m_components.at(compId);
-				result = cv;
-			}
+			View(Get<Types>()...);
 
-			return result;
+			return true;
 		}
 
 	private:
-		using ComponentMap = std::unordered_map<Component::Id, ComponentVector<>>;
-
-		Id                           m_id;
-		ComponentMap                 m_components;
-		std::multiset<Component::Id> m_componentIds;
+		std::unordered_map<TypeIndex, Internal::ComponentContainerBase*> m_components;
+		Context*                                                         m_context;
+		U64                                                              m_id;
+		bool                                                             m_pendingDestroy{ false };
 	};
+
+	namespace Internal
+	{
+		template <typename... Types>
+		class EntityComponentIterator
+		{
+		public:
+			EntityComponentIterator(Context* context, U64 index, bool isEnd, bool includePendingDestroy);
+
+			inline U64 GetIndex() const noexcept { return m_index; }
+			inline bool IncludePendingDestroy() const noexcept { return m_includePendingDestroy; }
+			inline Context* GetContext() const noexcept { return m_context; }
+
+			bool IsEnd() const noexcept;
+
+			Entity* GetEntity() const noexcept;
+
+			Entity* operator*() const noexcept
+			{
+				return GetEntity();
+			}
+
+			bool operator==(const EntityComponentIterator<Types...>& other) const
+			{
+				if (m_context != other.m_context)
+					return false;
+
+				if (m_isEnd)
+					return other.m_isEnd;
+
+				return m_index == other.m_index;
+			}
+
+			bool operator!=(const EntityComponentIterator<Types...>& other) const
+			{
+				if (m_context != other.m_context)
+					return true;
+
+				if (m_isEnd)
+					return !other.m_isEnd;
+
+				return m_index != other.m_index;
+			}
+
+			EntityComponentIterator<Types...>& operator++();
+
+		private:
+			bool     m_isEnd;
+			U64      m_index;
+			Context* m_context;
+			bool     m_includePendingDestroy;
+		};
+
+		template<typename... Types>
+		class EntityComponentView
+		{
+		public:
+			EntityComponentView(const EntityComponentIterator<Types...>& first, const EntityComponentIterator<Types...>& last);
+
+			const EntityComponentIterator<Types...>& begin() const
+			{
+				return m_first;
+			}
+
+			const EntityComponentIterator<Types...>& end() const
+			{
+				return m_last;
+			}
+
+		private:
+			EntityComponentIterator<Types...> m_first;
+			EntityComponentIterator<Types...> m_last;
+		};
+
+		class EntityIterator
+		{
+		public:
+			EntityIterator(Context* context, U64 index, bool isEnd, bool includePendingDestroy);
+
+			bool IsEnd() const noexcept;
+			inline U64 GetIndex() const noexcept { return m_index; }
+			inline bool IncludePendingDestroy() const noexcept { return m_includePendingDestroy; }
+			inline Context* GetContext() const noexcept { return m_context; }
+			Entity* GetEntity() const noexcept;
+
+			Entity* operator*() const noexcept { return GetEntity(); }
+
+			bool operator==(const EntityIterator& other) const
+			{
+				if (m_context != other.m_context)
+					return false;
+
+				if (m_isEnd)
+					return other.m_isEnd;
+
+				return m_index == other.m_index;
+			}
+
+			bool operator!=(const EntityIterator& other) const
+			{
+				if (m_context != other.m_context)
+					return true;
+
+				if (m_isEnd)
+					return !other.m_isEnd;
+
+				return m_index != other.m_index;
+			}
+
+			EntityIterator& operator++();
+
+		private:
+			bool     m_isEnd;
+			U64      m_index;
+			Context* m_context;
+			bool     m_includePendingDestroy;
+		};
+
+		class EntityView
+		{
+		public:
+			EntityView(const EntityIterator& first, const EntityIterator& last)
+				: m_first(first), m_last(last)
+			{
+				if (m_first.GetEntity() == nullptr || m_first.GetEntity()->IsPendingDestroy() && !m_first.IncludePendingDestroy())
+				{
+					++m_first;
+				}
+			}
+
+			const EntityIterator& begin() const
+			{
+				return m_first;
+			}
+
+			const EntityIterator& end() const
+			{
+				return m_last;
+			}
+
+		private:
+			EntityIterator m_first;
+			EntityIterator m_last;
+		};		
+	}
 }

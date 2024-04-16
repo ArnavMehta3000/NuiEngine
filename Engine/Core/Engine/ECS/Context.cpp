@@ -1,9 +1,15 @@
 #include "Context.h"
+#include "Core/Engine/ECS/System.h"
 
 namespace Nui::ECS
 {
-	void Context::Update(F64 dt)
+	void Context::Tick(F64 dt)
 	{
-		m_systemManager.Update(m_entityManager.begin(), m_entityManager.end(), dt);
+		//CleanUp();
+
+		for (auto* system : m_systems)
+		{
+			system->OnUpdate(this, dt);
+		}
 	}
 }

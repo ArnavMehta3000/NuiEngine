@@ -2,8 +2,6 @@
 #include "Core/Common/CommonHeaders.h"
 #include "Core/App/Window.h"
 #include "Core/Engine/World.h"
-#include "Core/Engine/ECS/EntityManager.h"
-#include "Core/Engine/ECS/SystemManager.h"
 
 namespace Nui
 {

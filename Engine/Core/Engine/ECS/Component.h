@@ -1,72 +1,46 @@
 #pragma once
-#include "Core/Common/CommonHeaders.h"
+#include "Core/Engine/ECS/Common.h"
 
 namespace Nui::ECS
 {
-	class Entity;
-
-	class Component
-	{
-		friend class Entity;
-	public:
-		using Id = U64;
-		using TypeId = U32;
-
-	public:
-		Component();
-		Component(const Component& other);
-		Component(Component&& other) = default;
-		virtual ~Component() = default;
-
-
-		Component& operator=(const Component& other) noexcept;
-		Component& operator=(Component&&) noexcept = default;
-
-		inline Id GetId() const { return m_id; }
-		virtual bool IsUnique() { return true; }
-		inline Entity* GetOwner() const { return m_entity; }
-		inline bool IsDirty() const { return m_isDirty; }
-
-	private:
-		U8 m_isDirty;
-		Id m_id;
-		Entity* m_entity;
-	};
-
-	inline bool operator==(const Component& lhs, const Component& rhs)
-	{
-		return lhs.GetId() == rhs.GetId();
-	}
-
-	inline bool operator!=(const Component& lhs, const Component& rhs)
-	{
-		return !(lhs == rhs);
-	}
-
-	template <typename C, template <typename> class smartPtr>
-	inline C* ComponentCast(smartPtr<Component> ptr)
-	{
-		return static_cast<C*>(ptr.get());
-	}
-
 	namespace Internal
 	{
-		extern Component::Id s_nextId;
+		struct ComponentContainerBase
+		{
+			virtual ~ComponentContainerBase() = default;
+
+			virtual void OnRemove(Entity* entity) = 0;
+			virtual void OnDestroy(Context* context) = 0;
+		};
 
 		template <typename T>
-		struct TypeId 
+		struct ComponentContainer : public ComponentContainerBase
 		{
-			static Component::Id Value()
-			{
-				static Component::Id typeId = s_nextId++;
-				return typeId;
-			}
+			T m_data;
+
+			ComponentContainer() = default;
+			ComponentContainer(const T& data) : m_data(data) {}
+
+		protected:
+			virtual void OnRemove(Entity* entity);
+			virtual void OnDestroy(Context* context);
 		};
 	}
 
 	template <typename T>
-	static inline Component::Id GetTypeId()
+	class ComponentHandle
 	{
-		return Internal::TypeId<T>::Value();
-	}
+	public:
+		ComponentHandle() : m_component(nullptr) {}
+		ComponentHandle(T* component) : m_component(component) {}
+
+		bool IsValid() const noexcept { return m_component != nullptr; }
+		T& Get() const noexcept { return *m_component; }
+
+		T* operator->() const { return m_component; }
+		operator bool() const { return IsValid(); }
+
+	private:
+		T* m_component;
+	};
 }
