@@ -222,13 +222,9 @@ namespace Nui
 		}
 
 		::ShowWindow(m_hWnd, fullscreen ? SW_MAXIMIZE : SW_SHOWNORMAL);
-
-		// Update window size
-		RECT rect{};
-		AdjustWindowRect(&rect, (DWORD)m_style, FALSE);
-		m_size.X = rect.right - rect.left;
-		m_size.Y = rect.bottom - rect.top;
 		::UpdateWindow(m_hWnd);
+
+		m_size = this->GetClientSize();
 		NUI_LOG(Debug, Window, "Created window");
 	}
 

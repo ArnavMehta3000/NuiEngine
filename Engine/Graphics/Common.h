@@ -3,26 +3,27 @@
 #include <Core/Common/Types.h>
 #include <Core/Utils/Exceptions.h>
 #include <Core/Math/Math.h>
-#include <format>
-// GFX Headers
+#include <wrl/client.h>
 
+#include <d3d11sdklayers.h>
 #include <wincodec.h>
 #include <dxgi1_6.h>
-#include <dxgidebug.h>
 #include <d3d11_4.h>
+#include <d3d9.h>  // For performance events
+#include <dxgidebug.h>
 #include <d3dcompiler.h>
 #include <d3d11shader.h>
-#include <wrl/client.h>
 
 
 // Library links
 #pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "D3DCompiler.lib")
 
-namespace Nui
+
+namespace Nui::Graphics
 {
 	template <typename T>
 	using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -31,7 +32,7 @@ namespace Nui
 	class com_exception : public std::exception
 	{
 	public:
-		com_exception(HRESULT hr, StringView file, U32 line)
+		com_exception(HRESULT hr, StringView expression, StringView file, U32 line)
 			: m_result(hr)
 			, m_file(file)
 			, m_line(line)
@@ -39,9 +40,9 @@ namespace Nui
 
 		const char* what() const noexcept override
 		{
-			static char s_str[256] = {};
-			sprintf_s(s_str, "HRESULT Error in file %s(%u). %s",
-				m_file.c_str(), m_line, GetWin32ErrorString(m_result).c_str());
+			static char s_str[512] = {};
+			sprintf_s(s_str, "DXCall caught an exception\nMessage: %s\nExpression: %s\nFile: %s(%u)",
+				GetWin32ErrorString(m_result).c_str(), m_expression.c_str(), m_file.c_str(), m_line);
 			
 			return s_str;
 		}
@@ -49,14 +50,15 @@ namespace Nui
 	private:
 		HRESULT m_result;
 		String m_file;
+		String m_expression;
 		U32 m_line;
 	};
 
-	inline void ThrowIfFailed(HRESULT hr)
+	inline void ThrowIfFailed(HRESULT hr, StringView expression, StringView file, U32 line)
 	{
 		if (FAILED(hr))
 		{
-			throw com_exception(hr, __FILE__, __LINE__);
+			throw com_exception(hr, expression, file, line);
 		}
 	}
 
@@ -69,4 +71,32 @@ namespace Nui
 			*ptr = nullptr;
 		}
 	}
+
+	struct GfxEvent
+	{
+		GfxEvent(const wchar_t* markerName)
+		{
+			D3DPERF_BeginEvent(0xFFFFFFFF, markerName);
+		}
+
+		~GfxEvent()
+		{
+			D3DPERF_EndEvent();
+		}
+	};
+
+	template <typename T>
+	HRESULT SetDebugName(T deviceChild, const String& debugName)
+	{
+#if defined(NUI_DEBUG)
+		return deviceChild->SetPrivateData(WKPDID_D3DDebugObjectName, (U32)debugName.size(), debugName.data());
+#else
+		return S_OK;
+#endif // defined(NUI_DEBUG)
+
+	}
+
+#define DXCall(expr) ThrowIfFailed(expr, #expr, __FILE__, __LINE__)
+// Align to float4 (16 bytes)
+#define Float4Align __declspec(align(16))
 }
