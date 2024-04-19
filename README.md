@@ -17,7 +17,7 @@ Nui Engine is a simple editor-less, code-first focused game engine/framework wri
   - Open commandline
   - Navigate the `Scripts/` folder
   - Run `CreateProject.py -projectname=<PrjName>`
-    - Where _<PrjName>_ is the name of your project (and the solution file).
+    - Where <PrjName> is the name of your project (and the solution file).
     - The project name does not have to be quoted
       - Usage example: `Scripts/CreateProject.py -projectname=MyGame`
 - In the root directory, you will see the generated visual studio solution file along with the game project folder.
