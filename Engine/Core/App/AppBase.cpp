@@ -16,16 +16,15 @@ namespace Nui
 		}
 
 		s_currentApp = this;
-		m_universe = std::make_unique<ECS::Universe>();
-	}
 
-	AppBase::~AppBase()
-	{
-		
+		m_world = std::make_unique<World>();
 	}
 
 	void AppBase::Tick(F64 dt)
 	{
-		m_universe->Tick(dt);
+		if (m_world->IsActive())
+		{
+			m_world->Update(dt);
+		}
 	}
 }

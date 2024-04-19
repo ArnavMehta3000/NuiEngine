@@ -1,19 +1,9 @@
 #include "Core/Engine/Engine.h"
 #include "Core/Utils/Filesystem.h"
-#include "Core/ECS/World.h"
-#include <Graphics/Graphics.h>
+
 
 namespace Nui
 {
-
-	struct TestWorld : public ECS::World
-	{
-		TestWorld(std::string name)
-		{
-			NUI_LOG(Debug, TestWorld, "Hello World, ", name, "!");
-		}
-	};
-
 	Engine::Engine()
 		: m_isRunning(true)
 	{
@@ -32,19 +22,6 @@ namespace Nui
 		m_app = Internal::MakeApp();
 		NUI_ASSERT(m_app.get(), "Failed to create application");
 
-		auto testWorld = m_app->GetUniverse()->CreateWorld<TestWorld>("Test World");
-		try
-		{
-			Graphics::Init(m_app->GetHWND());
-		}
-		catch (const std::exception& e)
-		{
-#if NUI_RELEASE
-			NUI_LOG(Exception, Renderer, "Renderer initialization failed: ", e.what());
-#endif
-			NUI_ASSERT(false, "Renderer initialization failed: ", e.what());
-		}
-
 		timer.Stop();
 		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
 	}
@@ -56,6 +33,8 @@ namespace Nui
 
 	void Engine::Run()
 	{
+		m_app->OnInit();
+
 		Timer updateLoop;
 		updateLoop.Start();
 
@@ -79,6 +58,8 @@ namespace Nui
 		}
 
 		updateLoop.Stop();
+
+		m_app->OnShutdown();
 	}
 
 	void Engine::Quit()

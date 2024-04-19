@@ -2,7 +2,7 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4005)
-#define NOMINMAX 1
+#define NOMINMAX
 #define NOMCX
 #define NOSERVICE
 #define NOHELP
@@ -10,7 +10,7 @@
 
 #include <Core/Engine/Engine.h>
 #include <Core/Utils/Singleton.h>
-
+#include <Core/Engine/ECS/Component.h>
 
 // Write the windows main function
 int WINAPI wWinMain(
