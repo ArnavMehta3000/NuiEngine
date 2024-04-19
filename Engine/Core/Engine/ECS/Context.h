@@ -65,7 +65,7 @@ namespace Nui::ECS
 		template<typename... Types>
 		Internal::EntityComponentView<Types...> Each(bool includePendingDestroy = false);
 		
-		void Tick(F64 dt);
+		void Tick(const F64 dt);
 
 
 	protected:

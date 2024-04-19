@@ -48,10 +48,6 @@ namespace Nui
 			// Update application
 			m_app->Tick(dt);
 
-			//auto ctx = m_deviceResources->GetImmediateContext();
-			//F32 clearColor[4] = { 1, 0, 0,1 };
-			//ctx->ClearRenderTargetView(m_deviceResources->GetBackBuffer(), clearColor);
-			//m_deviceResources->Present();
 
 			dt = now - elapsed;
 			elapsed = now;
@@ -74,7 +70,6 @@ namespace Nui
 
 		NUI_LOG(Debug, Engine, "Shutting down Nui Engine...");
 
-		Graphics::Shutdown();
 		m_app.reset();
 
 		timer.Stop();

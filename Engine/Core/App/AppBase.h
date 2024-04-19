@@ -21,12 +21,16 @@ namespace Nui
 		AppBase(const AppBase&) = delete;
 		AppBase(AppBase&&) = delete;
 
-		void Tick(F64 dt);
+		void Tick(const F64 dt);
 
 	private:
 		std::unique_ptr<World> m_world;
 	};
 
+	namespace Internal
+	{
+		extern std::unique_ptr<Nui::AppBase> MakeApp();
+	}
 }
 
 #define NUI_DECLARE_APP(app, ...)                 \

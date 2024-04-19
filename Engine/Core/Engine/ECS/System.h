@@ -9,7 +9,7 @@ namespace Nui::ECS
 		virtual ~SystemBase() = default;
 
 		virtual void OnInit(Context* ctx) {}
-		virtual void OnUpdate(Context* ctx, F64 dt) {}
+		virtual void OnUpdate(Context* ctx, const F64 dt) {}
 		virtual void OnShutdown(Context* ctx) {}
 	};
 }

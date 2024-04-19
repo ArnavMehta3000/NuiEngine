@@ -49,7 +49,7 @@ public:
 		ctx->SubscribeEvent<SomeEvent>(this);
 	}
 
-	virtual void OnUpdate(Nui::ECS::Context* ctx, Nui::F64 dt)
+	virtual void OnUpdate(Nui::ECS::Context* ctx, const Nui::F64 dt)
 	{
 		ctx->Each<Position, Rotation>(
 			[&](Nui::ECS::Entity* e, Nui::ECS::ComponentHandle<Position> pos, Nui::ECS::ComponentHandle<Rotation> rot) -> void
@@ -130,7 +130,7 @@ namespace Nui
 	}
 	static F64 time = 0.0;
 	static bool doOnce = true;
-	void World::Update(F64 dt)
+	void World::Update(const F64 dt)
 	{
 		if (!m_isActive)
 		{
