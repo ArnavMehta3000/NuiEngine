@@ -44,6 +44,8 @@ The project roadmap will keep on expanding and changing as I keep working on the
   - [x] Application
     - [x] Windowing
     - [x] Input
+    - [x] Framework
+  - [x] ECS
 - [ ] Graphics
   - [ ] --- TBD ---
 - [ ] Audio
