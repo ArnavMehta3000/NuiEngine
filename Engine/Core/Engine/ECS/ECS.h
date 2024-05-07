@@ -189,7 +189,7 @@ namespace Nui::ECS
 #pragma endregion
 
 #pragma region Context
-	Context* Context::Create()
+	inline Context* Context::Create()
 	{
 		Allocator_t alloc;  // Default allocator to create the context
 		ContextAllocator ctxAlloc(alloc);
@@ -207,7 +207,7 @@ namespace Nui::ECS
 		std::allocator_traits<ContextAllocator>::deallocate(alloc, this, 1);
 	}
 
-	Context::Context(Allocator_t allocator)
+	inline Context::Context(Allocator_t allocator)
 		: m_entityAlloc(allocator)
 		, m_systemAlloc(allocator)
 		, m_entities({}, EntityPtrAllocator(allocator))
@@ -216,7 +216,7 @@ namespace Nui::ECS
 	{
 	}
 
-	Context::~Context()
+	inline Context::~Context()
 	{
 		for (auto* system : m_systems)
 		{
@@ -242,7 +242,7 @@ namespace Nui::ECS
 		}
 	}
 
-	Entity* Context::GetEntityById(U64 id)
+	inline Entity* Context::GetEntityById(U64 id)
 	{
 		if (id == Entity::InvalidId || id > m_lastEntityId)
 			return nullptr;
@@ -257,7 +257,7 @@ namespace Nui::ECS
 		return nullptr;
 	}
 
-	Entity* Context::CreateEntity()
+	inline Entity* Context::CreateEntity()
 	{
 		++m_lastEntityId;
 		Entity* ent = std::allocator_traits<EntityAllocator>::allocate(m_entityAlloc, 1);
@@ -269,7 +269,7 @@ namespace Nui::ECS
 		return ent;
 	}
 
-	void Context::DestroyEntity(Entity* e, bool immediate)
+	inline void Context::DestroyEntity(Entity* e, bool immediate)
 	{
 		if (e == nullptr)
 			return;
@@ -298,7 +298,7 @@ namespace Nui::ECS
 		}
 	}
 
-	SystemBase* Context::RegisterSystem(SystemBase* system)
+	inline SystemBase* Context::RegisterSystem(SystemBase* system)
 	{
 		m_systems.push_back(system);
 		system->OnInit(this);
@@ -306,13 +306,13 @@ namespace Nui::ECS
 		return system;
 	}
 
-	void Context::UnregisterSystem(SystemBase* system)
+	inline void Context::UnregisterSystem(SystemBase* system)
 	{
 		m_systems.erase(std::remove(m_systems.begin(), m_systems.end(), system), m_systems.end());
 		system->OnShutdown(this);
 	}
 
-	void Context::EnableSystem(SystemBase* system)
+	inline void Context::EnableSystem(SystemBase* system)
 	{
 		auto it = std::find(m_disabledSystems.begin(), m_disabledSystems.end(), system);
 		if (it != m_disabledSystems.end())
@@ -322,7 +322,7 @@ namespace Nui::ECS
 		}
 	}
 
-	void Context::DisableSystem(SystemBase* system)
+	inline void Context::DisableSystem(SystemBase* system)
 	{
 		auto it = std::find(m_systems.begin(), m_systems.end(), system);
 		if (it != m_systems.end())
@@ -332,7 +332,7 @@ namespace Nui::ECS
 		}
 	}
 
-	bool Context::CleanUp()
+	inline bool Context::CleanUp()
 	{
 		U64 count = 0;
 		m_entities.erase(
@@ -356,7 +356,7 @@ namespace Nui::ECS
 		return count > 0;
 	}
 
-	void Context::Reset()
+	inline void Context::Reset()
 	{
 		for (auto* ent : m_entities)
 		{
@@ -414,7 +414,7 @@ namespace Nui::ECS
 		}
 	}
 
-	void Context::UnsubscribeAll(void* subscriber)
+	inline void Context::UnsubscribeAll(void* subscriber)
 	{
 		for (auto kv : m_subscribers)
 		{
@@ -442,7 +442,7 @@ namespace Nui::ECS
 			for (auto* base : found->second)
 			{
 				auto* sub = reinterpret_cast<EventSubscriber<T>*>(base);
-				sub->OnReceiveEvent(this, event);
+				sub->OnEvent(this, event);
 			}
 		}
 	}

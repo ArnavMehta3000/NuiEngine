@@ -1,5 +1,5 @@
 #include "CppUnitTest.h"
-#include "TestApp.h"
+#include "Test/App/TestApp.h"
 #include <Core/Engine/Engine.h>
 #include <Core/Utils/Singleton.h>
 #include <thread>
@@ -8,7 +8,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace NuiCoreTest
 {
-	TEST_CLASS(TesEngineRun)
+	TEST_CLASS(TestEngineRun)
 	{
 	public:
 

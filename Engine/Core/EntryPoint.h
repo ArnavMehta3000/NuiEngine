@@ -10,7 +10,6 @@
 
 #include <Core/Engine/Engine.h>
 #include <Core/Utils/Singleton.h>
-#include <Core/Engine/ECS/Component.h>
 
 int WINAPI wWinMain(
 	_In_     HINSTANCE hInstance,

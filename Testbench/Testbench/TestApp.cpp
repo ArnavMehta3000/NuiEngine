@@ -17,7 +17,6 @@ TestbenchApp::~TestbenchApp()
 void TestbenchApp::OnInit()
 {
 	NUI_LOG(Info, TestbenchApp, "Initializing Testbench App");
-	using namespace Nui;
 }
 
 void TestbenchApp::OnShutdown()

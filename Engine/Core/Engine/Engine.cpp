@@ -45,9 +45,14 @@ namespace Nui
 
 			Input::Internal::Update();
 
+			if (dt == 0.0f)
+			{
+				// Skip update on the first frame
+				continue;
+			}
+
 			// Update application
 			m_app->Tick(dt);
-
 
 			dt = now - elapsed;
 			elapsed = now;

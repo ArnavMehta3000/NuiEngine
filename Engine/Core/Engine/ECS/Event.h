@@ -17,7 +17,7 @@ namespace Nui::ECS
 	{
 	public:
 		virtual ~EventSubscriber() = default;
-		virtual void OnReceiveEvent(Context* context, const T& event) = 0;
+		virtual void OnEvent(Context* context, const T& event) = 0;
 	};
 
 	namespace Events

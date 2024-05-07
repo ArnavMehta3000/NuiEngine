@@ -26,8 +26,7 @@ project "NuiTest"
 
 	libdirs
 	{
-		"$(VCInstallDir)UnitTest/lib",
-		
+		"$(VCInstallDir)UnitTest/lib",		
 	}
 
 

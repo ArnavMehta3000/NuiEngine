@@ -13,6 +13,7 @@ namespace Nui
 
 		World operator=(const World&) = delete;
 		World operator=(World&&) = delete;
+
 		void Update(const F64 dt);
 
 		inline void SetActive(bool active) { m_isActive = active; }

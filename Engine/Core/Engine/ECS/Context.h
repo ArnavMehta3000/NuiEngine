@@ -77,4 +77,19 @@ namespace Nui::ECS
 		SubscriberMap                                m_subscribers;
 		U64                                          m_lastEntityId{ 0 };
 	};
+
+	struct ContextDeleter
+	{
+		void operator()(Context* ptr) const
+		{
+			if (ptr)
+			{
+				// Perform cleanup before destroying ECS context
+				ptr->CleanUp();
+				ptr->Destroy();
+			}
+		}
+	};
+
+	using ContextPtr = std::unique_ptr<Context, ContextDeleter>;
 }
