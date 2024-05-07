@@ -1,17 +1,9 @@
 #include "Core/Engine/Engine.h"
 #include "Core/Utils/Filesystem.h"
-#include "Core/ECS/World.h"
+
 
 namespace Nui
 {
-	struct TestWorld : public ECS::World
-	{
-		TestWorld(std::string name)
-		{
-			NUI_LOG(Debug, TestWorld, "Hello World, ", name, "!");
-		}
-	};
-
 	Engine::Engine()
 		: m_isRunning(true)
 	{
@@ -30,8 +22,6 @@ namespace Nui
 		m_app = Internal::MakeApp();
 		NUI_ASSERT(m_app.get(), "Failed to create application");
 
-		auto testWorld = m_app->GetUniverse()->CreateWorld<TestWorld>("Test World");
-
 		timer.Stop();
 		NUI_LOG(Debug, Engine, "Nui Engine initialized successfully in ", timer.GetElapsedSeconds().ToString(), " seconds");
 	}
@@ -43,6 +33,8 @@ namespace Nui
 
 	void Engine::Run()
 	{
+		m_app->OnInit();
+
 		Timer updateLoop;
 		updateLoop.Start();
 
@@ -52,6 +44,13 @@ namespace Nui
 			now = updateLoop.GetElapsedSeconds();
 
 			Input::Internal::Update();
+
+			if (dt == 0.0f)
+			{
+				// Skip update on the first frame
+				continue;
+			}
+
 			// Update application
 			m_app->Tick(dt);
 
@@ -60,6 +59,8 @@ namespace Nui
 		}
 
 		updateLoop.Stop();
+
+		m_app->OnShutdown();
 	}
 
 	void Engine::Quit()
@@ -73,6 +74,7 @@ namespace Nui
 		timer.Start();
 
 		NUI_LOG(Debug, Engine, "Shutting down Nui Engine...");
+
 		m_app.reset();
 
 		timer.Stop();

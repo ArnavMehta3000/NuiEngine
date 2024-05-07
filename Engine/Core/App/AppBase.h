@@ -1,8 +1,7 @@
 #pragma once
 #include "Core/Common/CommonHeaders.h"
 #include "Core/App/Window.h"
-#include "Core/ECS/Universe.h"
-
+#include "Core/Engine/World.h"
 
 namespace Nui
 {
@@ -11,20 +10,27 @@ namespace Nui
 		friend class Engine;
 	public:
 		explicit AppBase(WStringView appName, Window::Style style, Window::Size size);
-		virtual ~AppBase();
+		virtual ~AppBase() = default;
 
-		inline ECS::Universe* GetUniverse() { return m_universe.get(); }
+		virtual void OnInit() {}
+		virtual void OnShutdown() {}
+
+		inline World* GetWorld() const { return m_world.get(); }
 
 	private:
 		AppBase(const AppBase&) = delete;
 		AppBase(AppBase&&) = delete;
 
-		void Tick(F64 dt);
+		void Tick(const F64 dt);
 
 	private:
-		std::unique_ptr<ECS::Universe> m_universe;
+		std::unique_ptr<World> m_world;
 	};
 
+	namespace Internal
+	{
+		extern std::unique_ptr<Nui::AppBase> MakeApp();
+	}
 }
 
 #define NUI_DECLARE_APP(app, ...)                 \

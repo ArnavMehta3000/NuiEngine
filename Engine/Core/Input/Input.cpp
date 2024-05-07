@@ -365,7 +365,11 @@ namespace Nui::Input
 					return true;
 				}
 
-				Keyboard::KeyState& state = s_keyboard->KeyStates[ConvertKeyCodeToArrayIndex((KeyCode)wParam)];
+				U64 index = ConvertKeyCodeToArrayIndex(KeyCode(wParam));
+				if (index > s_keyboard->KeyStates.size())
+					return false;
+
+				Keyboard::KeyState& state = s_keyboard->KeyStates[index];
 				NUI_ASSERT(state.Key == KeyCode(wParam), "WPARAM is not a KeyCode");
 
 				if (!state.IsHeld)
@@ -398,7 +402,11 @@ namespace Nui::Input
 					return true;
 				}
 
-				Keyboard::KeyState& state = s_keyboard->KeyStates[ConvertKeyCodeToArrayIndex(KeyCode(wParam))];
+				U64 index = ConvertKeyCodeToArrayIndex(KeyCode(wParam));
+				if (index > s_keyboard->KeyStates.size())
+					return false;
+
+				Keyboard::KeyState& state = s_keyboard->KeyStates[index];
 				NUI_ASSERT(state.Key == KeyCode(wParam), "WPARAM is not a KeyCode");
 
 				state.IsPressed  = false;

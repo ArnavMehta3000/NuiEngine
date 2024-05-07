@@ -14,7 +14,8 @@ project "Testbench"
     location "E:/Dev/NuiEngine/Testbench"
     links
     {
-        "NuiCore"
+        "NuiCore",
+        "NuiGraphics"
     }
 
     includedirs 

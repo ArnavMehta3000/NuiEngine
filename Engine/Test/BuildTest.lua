@@ -15,8 +15,7 @@ project "NuiTest"
 	links
 	{
 		"NuiCore",
-		--"$(CoreLibraryDependencies)"
-
+		"NuiGraphics"
 	}
 
 	includedirs 
@@ -27,8 +26,7 @@ project "NuiTest"
 
 	libdirs
 	{
-		"$(VCInstallDir)UnitTest/lib",
-		
+		"$(VCInstallDir)UnitTest/lib",		
 	}
 
 

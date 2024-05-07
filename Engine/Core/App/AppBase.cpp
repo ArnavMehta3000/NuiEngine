@@ -2,30 +2,17 @@
 
 namespace Nui
 {
-	namespace // Anonymous namespace
-	{
-		static AppBase* s_currentApp = nullptr;
-	}  // Anonymous namespace
-
 	AppBase::AppBase(WStringView appName, Window::Style style, Window::Size size)
 		: Window(style, appName, size)
 	{
-		if (s_currentApp)
+		m_world = std::make_unique<World>();
+	}
+
+	void AppBase::Tick(const F64 dt)
+	{
+		if (m_world->IsActive())
 		{
-			NUI_ASSERT(false, "Cannot create multiple AppBase instances");
+			m_world->Update(dt);
 		}
-
-		s_currentApp = this;
-		m_universe = std::make_unique<ECS::Universe>();
-	}
-
-	AppBase::~AppBase()
-	{
-		
-	}
-
-	void AppBase::Tick(F64 dt)
-	{
-		m_universe->Tick(dt);
 	}
 }

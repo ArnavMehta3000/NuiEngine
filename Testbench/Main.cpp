@@ -1,19 +1,4 @@
 #include <Core/EntryPoint.h>
-
-
-class TestbenchApp : public Nui::AppBase
-{
-public:
-	TestbenchApp()
-		: Nui::AppBase(L"TestbenchApp", Nui::Window::Style::Windowed, { 1280, 720 })
-	{
-
-	}
-
-	virtual ~TestbenchApp()
-	{
-
-	}
-};
+#include "Testbench/TestApp.h"
 
 NUI_DECLARE_APP(TestbenchApp)
