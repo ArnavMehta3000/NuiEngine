@@ -394,6 +394,8 @@ FodyWeavers.xsd
 *.sln.iml
 
 **/Build/
+Scripts/psClang/*
+compile_commands.json
 
 # Remove this when using your own repo so that you don't have to generate project files again
 *.sln

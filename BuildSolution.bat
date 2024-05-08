@@ -1,12 +1,6 @@
 @echo off
 setlocal
 
-rem Check if configuration argument is provided
-if "%~1"=="" (
-    echo Configuration argument is missing. Usage: %0 [DebugEditor|DebugGame|ReleaseEditor|ReleaseGame]
-    exit /b 1
-)
-
 rem Get the current directory
 set "currentDirectory=%CD%"
 
@@ -21,4 +15,3 @@ if "%solutionFileName%"=="" (
 
 rem Invoke the Visual Studio Developer Command Prompt and execute MSBuild with the specified configuration
 msbuild "%solutionFileName%" -verbosity:minimal /p:Configuration=%~1
-
