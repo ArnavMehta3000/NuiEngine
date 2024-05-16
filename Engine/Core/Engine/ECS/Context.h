@@ -1,20 +1,25 @@
 #pragma once
 #include "Core/Engine/ECS/Common.h"
+#include <concepts>
 
 namespace Nui::ECS
 {
-	class Context
+	// Concept - is true when a class derives from SystemBase
+	template <typename T>
+	concept IsSystem = std::is_base_of<SystemBase, T>::value;
+
+	/*class Context
 	{
 	public:
-		using Allocator_t = std::allocator<::Nui::ECS::Entity>;
-		using ContextAllocator = std::allocator_traits<Allocator_t>::template rebind_alloc<Context>;
-		using EntityAllocator = std::allocator_traits<Allocator_t>::template rebind_alloc<Entity>;
-		using SystemAllocator = std::allocator_traits<Allocator_t>::template rebind_alloc<SystemBase>;
-		using EntityPtrAllocator = std::allocator_traits<Allocator_t>::template rebind_alloc<Entity*>;
-		using SystemPtrAllocator = std::allocator_traits<Allocator_t>::template rebind_alloc<SystemBase*>;
-		using SubscriberPtrAllocator = std::allocator_traits<Allocator_t>::template rebind_alloc<Internal::EventSubscriberBase*>;
+		using Allocator_t             = std::allocator<::Nui::ECS::Entity>;
+		using ContextAllocator        = std::allocator_traits<Allocator_t>::template rebind_alloc<Context>;
+		using EntityAllocator         = std::allocator_traits<Allocator_t>::template rebind_alloc<Entity>;
+		using SystemAllocator         = std::allocator_traits<Allocator_t>::template rebind_alloc<SystemBase>;
+		using EntityPtrAllocator      = std::allocator_traits<Allocator_t>::template rebind_alloc<Entity*>;
+		using SystemPtrAllocator      = std::allocator_traits<Allocator_t>::template rebind_alloc<SystemBase*>;
+		using SubscriberPtrAllocator  = std::allocator_traits<Allocator_t>::template rebind_alloc<Internal::EventSubscriberBase*>;
 		using SubscriberPairAllocator = std::allocator_traits<Allocator_t>::template rebind_alloc<std::pair<const TypeIndex, std::vector<Internal::EventSubscriberBase*, SubscriberPtrAllocator>>>;
-		using SubscriberMap = std::unordered_map<TypeIndex, std::vector<Internal::EventSubscriberBase*, SubscriberPtrAllocator>, std::hash<TypeIndex>, std::equal_to<TypeIndex>>;
+		using SubscriberMap           = std::unordered_map<TypeIndex, std::vector<Internal::EventSubscriberBase*, SubscriberPtrAllocator>, std::hash<TypeIndex>, std::equal_to<TypeIndex>>;
 
 	public:
 		static Context* Create();
@@ -91,5 +96,70 @@ namespace Nui::ECS
 		}
 	};
 
-	using ContextPtr = std::unique_ptr<Context, ContextDeleter>;
+	using ContextPtr = std::unique_ptr<Context, ContextDeleter>;*/
+
+
+	class Context
+	{
+	public:
+		using SubscriberMap = std::unordered_map<TypeIndex, std::vector<Internal::EventSubscriberBase*>, std::hash<TypeIndex>, std::equal_to<TypeIndex>>;
+		
+
+	public:
+		Context();
+		~Context();
+
+		inline U64 GetEntityCount() const noexcept { return m_entities.size(); }
+		Entity* GetEntityById(U64 id);
+		Entity* GetEntityByIndex(U64 index);
+
+		Entity* CreateEntity();
+		void DestroyEntity(Entity* e, bool immediate = false);
+		
+		bool ClearPending();
+		void Reset();
+
+		template <typename T, typename... Args>
+		T* RegisterSystem(Args&&... args) requires IsSystem<T>;
+
+		template <typename T>
+		void UnregisterSystem() requires IsSystem<T>;
+
+		template <typename T>
+		void EnableSystem() requires IsSystem<T>;
+
+		template <typename T>
+		void DisableSystem() requires IsSystem<T>;
+
+		template <typename T>
+		bool IsSystmEnabled() requires IsSystem<T>;
+
+		template <typename T>
+		void SubscribeEvent(EventSubscriber<T>* subscriber);
+
+		template<typename T>
+		void UnsubscribeEvent(EventSubscriber<T>* subscriber);
+
+		void UnsubscribeAll(void* subscriber);
+
+		template<typename T>
+		void EmitEvent(const T& event);
+
+		template<typename... Types>
+		Internal::EntityComponentView<Types...> Each(bool includePendingDestroy = false);
+
+		template<typename... Types>
+		void Each(typename std::common_type<std::function<void(Entity*, ComponentHandle<Types>...)>>::type viewFunc, bool includePendingDestroy = false);
+
+		Internal::EntityView All(bool includePendingDestroy = false);
+		void All(std::function<void(Entity*)> viewFunc, bool includePendingDestroy = false);
+
+		void Tick(const F64 dt);
+
+	private:
+		std::vector<std::unique_ptr<Entity>>     m_entities;
+		std::vector<std::unique_ptr<SystemBase>> m_systems;
+		SubscriberMap                            m_subscribers;
+		U64                                      m_lastEntityId{ 0 };
+	};
 }

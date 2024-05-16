@@ -6,6 +6,7 @@ namespace Nui::ECS
 	class Entity
 	{
 		friend class Context;
+		friend class Context2;
 	public:
 		constexpr static U64 InvalidId = 0;
 

@@ -119,11 +119,11 @@ namespace Nui::ECS
 	template<typename T>
 	inline void Internal::ComponentContainer<T>::OnDestroy(Context* context)
 	{
-		using ComponentAllocator = std::allocator_traits<Context::EntityAllocator>::template rebind_alloc<ComponentContainer<T>>;
+		// Destroy the component data
+		std::destroy_at(&m_data);
 
-		ComponentAllocator alloc(context->GetPrimaryAllocator());
-		std::allocator_traits<ComponentAllocator>::destroy(alloc, this);
-		std::allocator_traits<ComponentAllocator>::deallocate(alloc, this, 1);
+		// Deallocate the memory for the component container
+		delete this;
 	}
 #pragma endregion
 
@@ -189,7 +189,7 @@ namespace Nui::ECS
 #pragma endregion
 
 #pragma region Context
-	inline Context* Context::Create()
+	/*inline Context* Context::Create()
 	{
 		Allocator_t alloc;  // Default allocator to create the context
 		ContextAllocator ctxAlloc(alloc);
@@ -477,7 +477,347 @@ namespace Nui::ECS
 		Internal::EntityIterator first(this, 0, false, includePendingDestroy);
 		Internal::EntityIterator last(this, GetEntityCount(), true, includePendingDestroy);
 		return Internal::EntityView(first, last);
+	}*/
+
+#pragma endregion
+
+#pragma region Context
+	inline Context::Context() = default;
+
+	inline Context::~Context()
+	{
+		// Shutdown systems
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			system->OnShutdown(this);
+		}
+
+		// Clear entities
+		for (std::unique_ptr<Entity>& ent : m_entities)
+		{
+			if (!ent->IsPendingDestroy())
+			{
+				ent->m_pendingDestroy = true;
+				EmitEvent<Events::OnEntityDestroy>({ ent });
+			}
+
+			ent.reset();
+		}
+
+		// Shutdown systems
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			system.reset();
+		}
 	}
 
+	inline Entity* Context::GetEntityById(U64 id)
+	{
+		if (id == Entity::InvalidId || id > m_lastEntityId)
+			return nullptr;
+
+		// We should likely store entities in a map of id -> entity so that this is faster.
+		for (std::unique_ptr<Entity>& ent : m_entities)
+		{
+			if (ent->GetId() == id)
+				return ent.get();
+		}
+
+		return nullptr;
+	}
+
+	inline Entity* Context::GetEntityByIndex(U64 index)
+	{
+		if (index >= m_entities.size())
+			return nullptr;
+
+		return m_entities[index].get();
+	}
+
+	inline Entity* Context::CreateEntity()
+	{
+		++m_lastEntityId;
+		m_entities.push_back(std::make_unique<Entity>(this, m_lastEntityId));
+		
+		Entity* e = m_entities.front().get();
+		EmitEvents<Events::OnEntityCreate>({ e });
+
+		return e;
+	}
+
+	void Context::DestroyEntity(Entity* e, bool immediate = false)
+	{
+		if (e == nullptr)
+			return;
+
+		if (e->IsPendingDestroy())
+		{
+			if (immediate)
+			{
+				m_entities.erase(
+					std::remove_if(
+						m_entities.begin(), m_entities.end(), 
+						[e] (const std::unique_ptr<Entity>& ptr)
+						{
+							return ptr.get() == e; 
+						}),
+					m_entities.end());
+			}
+
+			return;
+		}
+
+		e->m_pendingDestroy = true;
+
+		EmitEvent<Events::OnEntityDestroy>({ e });
+
+		if (immediate)
+		{
+			m_entities.erase(
+				std::remove_if(
+					m_entities.begin(), m_entities.end(), 
+					[e] (const std::unique_ptr<Entity>& ptr)
+					{ 
+						return ptr.get() == e;
+					}), 
+				m_entities.end());
+		}
+	}
+	
+	bool Context::ClearPending()
+	{
+		U64 count = 0;
+		m_entities.erase(
+			std::remove_if(
+				m_entities.begin(), m_entities.end(),
+				[&, this](std::unique_ptr<Entity>& ent)
+				{
+					if (ent->IsPendingDestroy())
+					{
+						++count;
+						ent.reset();
+						return true;
+					}
+
+					return false;
+				}),
+			m_entities.end()
+		);
+
+		return count > 0;
+	}
+
+	inline void Context::Reset()
+	{
+		for (std::unique_ptr<Entity>& ent : m_entities)
+		{
+			if (!ent->IsPendingDestroy()) 
+			{
+				ent->m_pendingDestroy = true;
+				EmitEvent<Events::OnEntityDestroy>({ ent.get() });
+			}
+		}
+
+		m_entities.clear();
+		m_lastEntityId = 0;
+	}
+
+	template <typename T, typename... Args>
+	inline T* Context::RegisterSystem(Args&&... args) requires IsSystem<T>
+	{
+		// Check if a system of type T already exists
+		for (const std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (dynamic_cast<T*>(system.get()))
+			{
+				return nullptr;
+			}
+		}
+
+		std::unique_ptr<SystemBase> system = std::make_unique<T>(std::forward<Args>(args)...);
+		system->OnInit(this);
+
+		m_systems.push_back(std::move(system));
+
+		return dynamic_cast<T*>(m_systems.back().get());
+	}
+
+	template <typename T>
+	inline void Context::UnregisterSystem() requires IsSystem<T>
+	{
+		// Remove the system from the vector
+		auto it = std::remove_if(
+			m_systems.begin(), m_systems.end(), 
+			[] (std::unique_ptr<SystemBase>& system)
+			{
+				if (dynamic_cast<T*>(system.get()) != nullptr) 
+				{
+					system->OnShutdown(this);
+					return true; // Mark for removal
+				}
+				
+				return false; // Keep the system
+			});
+
+		// Erase the removed systems from the vector
+		if (it != m_systems.end())
+		{
+			m_systems.erase(it, m_systems.end());
+		}
+	}
+
+	template <typename T>
+	inline void Context::EnableSystem() requires IsSystem<T>
+	{
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (dynamic_cast<T*>(system.get()) != nullptr)
+			{
+				system->SetIsEnabled(true);
+			}
+		}
+	}
+
+	template <typename T>
+	inline void Context::DisableSystem() requires IsSystem<T>
+	{
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (dynamic_cast<T*>(system.get()) != nullptr)
+			{
+				system->SetIsEnabled(false);
+			}
+		}
+	}
+
+	template <typename T>
+	inline bool Context::IsSystmEnabled() requires IsSystem<T>
+	{
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (dynamic_cast<T*>(system.get()) != nullptr)
+			{
+				return system->IsEnabled();
+			}
+		}
+	}
+
+	template<typename T>
+	inline void Context::SubscribeEvent(EventSubscriber<T>* subscriber)
+	{
+		TypeIndex index = GetTypeIndex<T>();
+		auto found = m_subscribers.find(index);
+
+		if (found == m_subscribers.end())
+		{
+			// No subscribers yet
+			std::vector<Internal::EventSubscriberBase*> subList;
+			subList.push_back(subscriber);
+			m_subscribers.insert({ index, subList });
+		}
+		else
+		{
+			// Add subscriber
+			found->second.push_back(subscriber);
+		}
+	}
+
+	template<typename T>
+	inline void Context::UnsubscribeEvent(EventSubscriber<T>* subscriber)
+	{
+		TypeIndex index = GetTypeIndex<T>();
+		auto found = m_subscribers.find(index);
+
+		if (found != m_subscribers.end())
+		{
+			found->second.erase(
+				std::remove(
+					found->second.begin(), found->second.end(),
+					subscriber),
+				found->second.end()
+			);
+
+			if (found->second.size() == 0)
+			{
+				m_subscribers.erase(found);
+			}
+		}
+	}
+
+	inline void Context::UnsubscribeAll(void* subscriber)
+	{
+		for (auto& [typeIndex, subList] : m_subscribers)
+		{
+			subList.erase(
+				std::remove(
+					subList.begin(), subList.end(),
+					subscriber
+				), subList.end()
+			);
+
+			if (subList.size() == 0)
+			{
+				m_subscribers.erase(typeIndex);
+			}
+		}
+	}
+
+	inline Internal::EntityView Context::All(bool includePendingDestroy)
+	{
+		Internal::EntityIterator first(this, 0, false, includePendingDestroy);
+		Internal::EntityIterator last(this, GetEntityCount(), true, includePendingDestroy);
+		return Internal::EntityView(first, last);
+	}
+
+	inline void Context::All(std::function<void(Entity*)> viewFunc, bool includePendingDestroy)
+	{
+		for (auto* ent : All(includePendingDestroy))
+		{
+			viewFunc(ent);
+		}
+	}
+
+	template<typename T>
+	inline void Context::EmitEvent(const T& event)
+	{
+		TypeIndex index = GetTypeIndex<T>();
+		auto found = m_subscribers.find(index);
+
+		if (found != m_subscribers.end())
+		{
+			for (Internal::EventSubscriberBase* subBase : found->second)
+			{
+				EventSubscriber<T>* sub = reinterpret_cast<EventSubscriber<T>*>(subBase);
+				sub->OnEvent(this, event);
+			}
+		}
+	}
+
+	template<typename ...Types>
+	inline Internal::EntityComponentView<Types...> Nui::ECS::Context::Each(bool includePendingDestroy)
+	{
+		Internal::EntityComponentIterator<Types...> first(this, 0, false, includePendingDestroy);
+		Internal::EntityComponentIterator<Types...> last(this, GetEntityCount(), true, includePendingDestroy);
+		return Internal::EntityComponentView<Types...>(first, last);
+	}
+
+	template<typename ...Types>
+	inline void Context::Each(typename std::common_type<std::function<void(Entity*, ComponentHandle<Types>...)>>::type viewFunc, bool includePendingDestroy)
+	{
+		for (auto* ent : Each<Types...>(includePendingDestroy))
+		{
+			viewFunc(ent.get(), ent->template Get<Types>()...);
+		}
+	}
+
+	inline void Context::Tick(const F64 dt)
+	{
+		//ClearPending();
+
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			system->OnUpdate(this, dt);
+		}
+	}
 #pragma endregion
 }
