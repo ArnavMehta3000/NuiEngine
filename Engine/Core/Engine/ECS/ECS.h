@@ -39,8 +39,24 @@ namespace Nui::ECS
 	template<typename... Types>
 	inline Internal::EntityComponentIterator<Types...>& Internal::EntityComponentIterator<Types...>::operator++()
 	{
+		// Advance the index
 		++m_index;
-		while (m_index < m_context->GetEntityCount() && (GetEntity() == nullptr || !GetEntity()->template Has<Types...>() || (GetEntity()->IsPendingDestroy() && !m_includePendingDestroy)))
+
+		/* 
+		Keep advancing the index as long as :
+		- Entity index is under limit
+		- AND EITHER
+		- Entity is not nullptr
+		- OR
+		- Entity has required components
+		- OR
+		- Entity is pending destruction (or not depending on input conditions)
+		*/
+
+		while (m_index < m_context->GetEntityCount()                                // Entity index is under limit
+			&& (GetEntity() == nullptr                                              // Current entity is nullptr
+				|| !GetEntity()->template Has<Types...>()                           // Entity has required components
+				|| (GetEntity()->IsPendingDestroy() && !m_includePendingDestroy)))  // Entity is pending destruction
 		{
 			++m_index;
 		}
@@ -58,6 +74,15 @@ namespace Nui::ECS
 		: m_first(first)
 		, m_last(last)
 	{
+		/*
+		Ensure 'm_first' points to a valid entity by:
+		- First entity is valid (not nullptr)
+		- OR
+		- First entity is pending destruction AND IncludePendingDestroy is false
+		- OR
+		- First entity has a all required components
+		If th above conditions fail, (using the ++ operator) advance the EntityComponentIterator until we find a valid Entity or reaches end of range
+		*/
 		if (m_first.GetEntity() == nullptr
 			|| (m_first.GetEntity()->IsPendingDestroy() && !m_first.IncludePendingDestroy())
 			|| !m_first.GetEntity()->template Has<Types...>())
@@ -95,8 +120,12 @@ namespace Nui::ECS
 
 	inline Internal::EntityIterator& Internal::EntityIterator::operator++()
 	{
+		// Similar to EntityComponentIterator's ++ operator
+
 		++m_index;
-		while (m_index < m_context->GetEntityCount() && (GetEntity() == nullptr || (GetEntity()->IsPendingDestroy() && !m_includePendingDestroy)))
+		while (m_index < m_context->GetEntityCount() 
+			&& (GetEntity() == nullptr 
+				|| (GetEntity()->IsPendingDestroy() && !m_includePendingDestroy)))
 		{
 			++m_index;
 		}
@@ -115,42 +144,32 @@ namespace Nui::ECS
 		auto handle = ComponentHandle<T>(&m_data);
 		entity->GetContext()->EmitEvent<Events::OnComponentRemove<T>>({ entity, handle });
 	}
-
-	template<typename T>
-	inline void Internal::ComponentContainer<T>::OnDestroy(Context* context)
-	{
-		using ComponentAllocator = std::allocator_traits<Context::EntityAllocator>::template rebind_alloc<ComponentContainer<T>>;
-
-		ComponentAllocator alloc(context->GetPrimaryAllocator());
-		std::allocator_traits<ComponentAllocator>::destroy(alloc, this);
-		std::allocator_traits<ComponentAllocator>::deallocate(alloc, this, 1);
-	}
 #pragma endregion
 
 #pragma region Entity
 	template<typename T, typename ...Args>
 	inline ComponentHandle<T> Entity::Add(Args && ...args)
 	{
-		using ComponentAllocator = std::allocator_traits<Context::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
-
 		auto found = m_components.find(GetTypeIndex<T>());
 		if (found != m_components.end())
 		{
-			Internal::ComponentContainer<T>* container = reinterpret_cast<Internal::ComponentContainer<T>*>(found->second);
+			// If found, update the existing component
+			Internal::ComponentContainer<T>* container = reinterpret_cast<Internal::ComponentContainer<T>*>(found->second.get());
 			container->m_data = T(std::forward<Args>(args)...);
 
-			auto handle = ComponentHandle<T>(&container->m_data);
+			ComponentHandle<T> handle = ComponentHandle<T>(&container->m_data);
 			m_context->EmitEvent<Events::OnComponentAdd<T>>({ this, handle });
 			return handle;
 		}
 		else
 		{
-			ComponentAllocator alloc(m_context->GetPrimaryAllocator());
+			// If not found, create a new component container
+			std::unique_ptr<Internal::ComponentContainer<T>> container = std::make_unique<Internal::ComponentContainer<T>>(T(std::forward<Args>(args)...));
+			
+			Internal::ComponentContainer<T>* containerRawPtr = container.get();
 
-			Internal::ComponentContainer<T>* container = std::allocator_traits<ComponentAllocator>::allocate(alloc, 1);
-			std::allocator_traits<ComponentAllocator>::construct(alloc, container, T(std::forward<Args>(args)...));
-
-			m_components.insert({ GetTypeIndex<T>(), container });
+			// Insert the new component container into the map
+			m_components.insert({ GetTypeIndex<T>(), std::move(container) });
 
 			auto handle = ComponentHandle<T>(&container->m_data);
 			m_context->EmitEvent<Events::OnComponentAdd<T>>({ this, handle });
@@ -164,7 +183,8 @@ namespace Nui::ECS
 		auto found = m_components.find(GetTypeIndex<T>());
 		if (found != m_components.end())
 		{
-			return ComponentHandle<T>(&reinterpret_cast<Internal::ComponentContainer<T>*>(found->second)->m_data);
+			Internal::ComponentContainer<T>* container = reinterpret_cast<Internal::ComponentContainer<T>*>(found->second.get());
+			return ComponentHandle<T>(&container->m_data);
 		}
 
 		return ComponentHandle<T>();
@@ -189,56 +209,32 @@ namespace Nui::ECS
 #pragma endregion
 
 #pragma region Context
-	inline Context* Context::Create()
-	{
-		Allocator_t alloc;  // Default allocator to create the context
-		ContextAllocator ctxAlloc(alloc);
-
-		Context* ctx = std::allocator_traits<ContextAllocator>::allocate(ctxAlloc, 1);
-		std::allocator_traits<ContextAllocator>::construct(ctxAlloc, ctx, alloc);
-
-		return ctx;
-	}
-
-	inline void Context::Destroy()
-	{
-		ContextAllocator alloc(m_entityAlloc);
-		std::allocator_traits<ContextAllocator>::destroy(alloc, this);
-		std::allocator_traits<ContextAllocator>::deallocate(alloc, this, 1);
-	}
-
-	inline Context::Context(Allocator_t allocator)
-		: m_entityAlloc(allocator)
-		, m_systemAlloc(allocator)
-		, m_entities({}, EntityPtrAllocator(allocator))
-		, m_systems({}, SystemPtrAllocator(allocator))
-		, m_subscribers({}, std::hash<TypeIndex>(), std::equal_to<TypeIndex>(), SubscriberPtrAllocator(allocator))
-	{
-	}
+	inline Context::Context() = default;
 
 	inline Context::~Context()
 	{
-		for (auto* system : m_systems)
+		// Shutdown systems
+		for (std::unique_ptr<SystemBase>& system : m_systems)
 		{
 			system->OnShutdown(this);
 		}
 
-		for (auto* ent : m_entities)
+		// Clear entities
+		for (std::unique_ptr<Entity>& ent : m_entities)
 		{
 			if (!ent->IsPendingDestroy())
 			{
 				ent->m_pendingDestroy = true;
-				EmitEvent<Events::OnEntityDestroy>({ ent });
+				EmitEvent<Events::OnEntityDestroy>({ ent.get()});
 			}
 
-			std::allocator_traits<EntityAllocator>::destroy(m_entityAlloc, ent);
-			std::allocator_traits<EntityAllocator>::deallocate(m_entityAlloc, ent, 1);
+			ent.reset();
 		}
 
-		for (auto* system : m_systems)
+		// Shutdown systems
+		for (std::unique_ptr<SystemBase>& system : m_systems)
 		{
-			std::allocator_traits<SystemAllocator>::destroy(m_systemAlloc, system);
-			std::allocator_traits<SystemAllocator>::deallocate(m_systemAlloc, system, 1);
+			system.reset();
 		}
 	}
 
@@ -248,21 +244,29 @@ namespace Nui::ECS
 			return nullptr;
 
 		// We should likely store entities in a map of id -> entity so that this is faster.
-		for (Entity* ent : m_entities)
+		for (std::unique_ptr<Entity>& ent : m_entities)
 		{
 			if (ent->GetId() == id)
-				return ent;
+				return ent.get();
 		}
 
 		return nullptr;
 	}
 
+	inline Entity* Context::GetEntityByIndex(U64 index)
+	{
+		if (index >= m_entities.size())
+			return nullptr;
+
+		return m_entities[index].get();
+	}
+
 	inline Entity* Context::CreateEntity()
 	{
 		++m_lastEntityId;
-		Entity* ent = std::allocator_traits<EntityAllocator>::allocate(m_entityAlloc, 1);
-		std::allocator_traits<EntityAllocator>::construct(m_entityAlloc, ent, this, m_lastEntityId);
-		m_entities.push_back(ent);
+		m_entities.push_back(std::make_unique<Entity>(this, m_lastEntityId));
+		
+		Entity* ent = m_entities.front().get();
 
 		EmitEvent<Events::OnEntityCreate>({ ent });
 
@@ -278,9 +282,14 @@ namespace Nui::ECS
 		{
 			if (immediate)
 			{
-				m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), e), m_entities.end());
-				std::allocator_traits<EntityAllocator>::destroy(m_entityAlloc, e);
-				std::allocator_traits<EntityAllocator>::deallocate(m_entityAlloc, e, 1);
+				m_entities.erase(
+					std::remove_if(
+						m_entities.begin(), m_entities.end(), 
+						[e] (const std::unique_ptr<Entity>& ptr)
+						{
+							return ptr.get() == e; 
+						}),
+					m_entities.end());
 			}
 
 			return;
@@ -292,59 +301,29 @@ namespace Nui::ECS
 
 		if (immediate)
 		{
-			m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), e), m_entities.end());
-			std::allocator_traits<EntityAllocator>::destroy(m_entityAlloc, e);
-			std::allocator_traits<EntityAllocator>::deallocate(m_entityAlloc, e, 1);
+			m_entities.erase(
+				std::remove_if(
+					m_entities.begin(), m_entities.end(), 
+					[e] (const std::unique_ptr<Entity>& ptr)
+					{ 
+						return ptr.get() == e;
+					}), 
+				m_entities.end());
 		}
 	}
-
-	inline SystemBase* Context::RegisterSystem(SystemBase* system)
-	{
-		m_systems.push_back(system);
-		system->OnInit(this);
-
-		return system;
-	}
-
-	inline void Context::UnregisterSystem(SystemBase* system)
-	{
-		m_systems.erase(std::remove(m_systems.begin(), m_systems.end(), system), m_systems.end());
-		system->OnShutdown(this);
-	}
-
-	inline void Context::EnableSystem(SystemBase* system)
-	{
-		auto it = std::find(m_disabledSystems.begin(), m_disabledSystems.end(), system);
-		if (it != m_disabledSystems.end())
-		{
-			m_disabledSystems.erase(it);
-			m_systems.push_back(system);
-		}
-	}
-
-	inline void Context::DisableSystem(SystemBase* system)
-	{
-		auto it = std::find(m_systems.begin(), m_systems.end(), system);
-		if (it != m_systems.end())
-		{
-			m_systems.erase(it);
-			m_disabledSystems.push_back(system);
-		}
-	}
-
-	inline bool Context::CleanUp()
+	
+	inline bool Context::ClearPending()
 	{
 		U64 count = 0;
 		m_entities.erase(
 			std::remove_if(
 				m_entities.begin(), m_entities.end(),
-				[&, this](Entity* ent)
+				[&, this](std::unique_ptr<Entity>& ent)
 				{
 					if (ent->IsPendingDestroy())
 					{
-						std::allocator_traits<EntityAllocator>::destroy(m_entityAlloc, ent);
-						std::allocator_traits<EntityAllocator>::deallocate(m_entityAlloc, ent, 1);
 						++count;
+						ent.reset();
 						return true;
 					}
 
@@ -358,21 +337,112 @@ namespace Nui::ECS
 
 	inline void Context::Reset()
 	{
-		for (auto* ent : m_entities)
+		for (std::unique_ptr<Entity>& ent : m_entities)
 		{
-			if (!ent->IsPendingDestroy())
+			if (!ent->IsPendingDestroy()) 
 			{
 				ent->m_pendingDestroy = true;
-				EmitEvent<Events::OnEntityDestroy>({ ent });
+				EmitEvent<Events::OnEntityDestroy>({ ent.get() });
 			}
-			std::allocator_traits<EntityAllocator>::destroy(m_entityAlloc, ent);
-			std::allocator_traits<EntityAllocator>::deallocate(m_entityAlloc, ent, 1);
 		}
 
 		m_entities.clear();
 		m_lastEntityId = 0;
 	}
-	
+
+	template <typename T, typename... Args>
+	inline T* Context::RegisterSystem(Args&&... args) requires IsSystem<T>
+	{
+		// Check if a system of type T already exists
+		for (const std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (dynamic_cast<T*>(system.get()))
+			{
+				return nullptr;
+			}
+		}
+
+		std::unique_ptr<SystemBase> system = std::make_unique<T>(std::forward<Args>(args)...);
+		system->OnInit(this);
+
+		m_systems.push_back(std::move(system));
+
+		return dynamic_cast<T*>(m_systems.back().get());
+	}
+
+	template <typename T>
+	inline void Context::UnregisterSystem() requires IsSystem<T>
+	{
+		// Remove the system from the vector
+		auto it = std::remove_if(
+			m_systems.begin(), m_systems.end(), 
+			[] (std::unique_ptr<SystemBase>& system)
+			{
+				if (dynamic_cast<T*>(system.get()) != nullptr) 
+				{
+					system->OnShutdown(this);
+					return true; // Mark for removal
+				}
+				
+				return false; // Keep the system
+			});
+
+		// Erase the removed systems from the vector
+		if (it != m_systems.end())
+		{
+			m_systems.erase(it, m_systems.end());
+		}
+	}
+
+	template<typename T>
+	inline T* Context::GetSystem() requires IsSystem<T>
+	{
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (T* typedSystem = dynamic_cast<T*>(system.get()))
+			{
+				return typedSystem;
+			}
+		}
+		return nullptr;
+	}
+
+	template <typename T>
+	inline void Context::EnableSystem() requires IsSystem<T>
+	{
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (dynamic_cast<T*>(system.get()) != nullptr)
+			{
+				system->SetIsEnabled(true);
+			}
+		}
+	}
+
+	template <typename T>
+	inline void Context::DisableSystem() requires IsSystem<T>
+	{
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (dynamic_cast<T*>(system.get()) != nullptr)
+			{
+				system->SetIsEnabled(false);
+			}
+		}
+	}
+
+	template <typename T>
+	inline bool Context::IsSystmEnabled() requires IsSystem<T>
+	{
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			if (dynamic_cast<T*>(system.get()) != nullptr)
+			{
+				return system->IsEnabled();
+			}
+		}
+	}
+
 	template<typename T>
 	inline void Context::SubscribeEvent(EventSubscriber<T>* subscriber)
 	{
@@ -381,13 +451,14 @@ namespace Nui::ECS
 
 		if (found == m_subscribers.end())
 		{
-			std::vector<Internal::EventSubscriberBase*, SubscriberPtrAllocator> subList(m_entityAlloc);
+			// No subscribers yet
+			std::vector<Internal::EventSubscriberBase*> subList;
 			subList.push_back(subscriber);
-
 			m_subscribers.insert({ index, subList });
 		}
 		else
 		{
+			// Add subscriber
 			found->second.push_back(subscriber);
 		}
 	}
@@ -416,59 +487,19 @@ namespace Nui::ECS
 
 	inline void Context::UnsubscribeAll(void* subscriber)
 	{
-		for (auto kv : m_subscribers)
+		for (auto& [typeIndex, subList] : m_subscribers)
 		{
-			kv.second.erase(
+			subList.erase(
 				std::remove(
-					kv.second.begin(), kv.second.end(),
+					subList.begin(), subList.end(),
 					subscriber
-				), kv.second.end()
+				), subList.end()
 			);
 
-			if (kv.second.size() == 0)
+			if (subList.size() == 0)
 			{
-				m_subscribers.erase(kv.first);
+				m_subscribers.erase(typeIndex);
 			}
-		}
-	}
-
-	template<typename T>
-	inline void Context::EmitEvent(const T& event)
-	{
-		TypeIndex index = GetTypeIndex<T>();
-		auto found = m_subscribers.find(index);
-		if (found != m_subscribers.end())
-		{
-			for (auto* base : found->second)
-			{
-				auto* sub = reinterpret_cast<EventSubscriber<T>*>(base);
-				sub->OnEvent(this, event);
-			}
-		}
-	}
-
-	template<typename ...Types>
-	inline void Context::Each(typename std::common_type<std::function<void(Entity*, ComponentHandle<Types>...)>>::type viewFunc, bool includePendingDestroy)
-	{
-		for (auto* ent : Each<Types...>(includePendingDestroy))
-		{
-			viewFunc(ent, ent->template Get<Types>()...);
-		}
-	}
-
-	template<typename ...Types>
-	inline Internal::EntityComponentView<Types...> Context::Each(bool includePendingDestroy)
-	{
-		Internal::EntityComponentIterator<Types...> first(this, 0, false, includePendingDestroy);
-		Internal::EntityComponentIterator<Types...> last(this, GetEntityCount(), true, includePendingDestroy);
-		return Internal::EntityComponentView<Types...>(first, last);
-	}
-
-	inline void Context::All(std::function<void(Entity*)> viewFunc, bool includePendingDestroy)
-	{
-		for (auto* ent : All(includePendingDestroy))
-		{
-			viewFunc(ent);
 		}
 	}
 
@@ -479,5 +510,55 @@ namespace Nui::ECS
 		return Internal::EntityView(first, last);
 	}
 
+	inline void Context::All(std::function<void(Entity*)> viewFunc, bool includePendingDestroy)
+	{
+		for (auto* ent : All(includePendingDestroy))
+		{
+			viewFunc(ent);
+		}
+	}
+
+	template<typename T>
+	inline void Context::EmitEvent(const T& event)
+	{
+		TypeIndex index = GetTypeIndex<T>();
+		auto found = m_subscribers.find(index);
+
+		if (found != m_subscribers.end())
+		{
+			for (Internal::EventSubscriberBase* subBase : found->second)
+			{
+				EventSubscriber<T>* sub = reinterpret_cast<EventSubscriber<T>*>(subBase);
+				sub->OnEvent(this, event);
+			}
+		}
+	}
+
+	template<typename ...Types>
+	inline Internal::EntityComponentView<Types...> Nui::ECS::Context::Each(bool includePendingDestroy)
+	{
+		Internal::EntityComponentIterator<Types...> first(this, 0, false, includePendingDestroy);
+		Internal::EntityComponentIterator<Types...> last(this, GetEntityCount(), true, includePendingDestroy);
+		return Internal::EntityComponentView<Types...>(first, last);
+	}
+
+	template<typename ...Types>
+	inline void Context::Each(typename std::common_type<std::function<void(Entity*, ComponentHandle<Types>...)>>::type viewFunc, bool includePendingDestroy)
+	{
+		for (Entity* ent : Each<Types...>(includePendingDestroy))
+		{
+			viewFunc(ent, ent->template Get<Types>()...);
+		}
+	}
+
+	inline void Context::Tick(const F64 dt)
+	{
+		//ClearPending();
+
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			system->OnUpdate(this, dt);
+		}
+	}
 #pragma endregion
 }

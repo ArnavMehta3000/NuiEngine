@@ -4,18 +4,19 @@
 namespace Nui
 {
 	World::World()
-		: m_isActive(true)
+		: Context()
+		, m_isActive(true)
 	{
 	}
 
-	World::~World()
-	{
-	}
+	World::~World() = default;
+
 	void World::Update(const F64 dt)
 	{
-		if (!m_isActive)
-		{
-			return;
-		}
+		// Update ECS
+		Context::ClearPending();
+		Context::Tick(dt);
+
+		NUI_LOG(Debug, World, "Updated world in ", dt, " seconds");
 	}
 }

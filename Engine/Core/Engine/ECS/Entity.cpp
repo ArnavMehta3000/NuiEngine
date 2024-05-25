@@ -7,7 +7,7 @@ namespace Nui::ECS
 		for (auto& [typeIndex, containerBase] : m_components)
 		{
 			containerBase->OnRemove(this);
-			containerBase->OnDestroy(m_context);
+			containerBase.reset();
 		}
 
 		m_components.clear();

@@ -6,14 +6,14 @@ namespace NuiCoreTest
 	{
 	public:
 
-		// Simply add and remove 10 entities
-		TEST_METHOD(TestECSEntityAddRemove10)
+		// Simply add and remove 1000 entities
+		TEST_METHOD(TestECSEntityAddRemove100000)
 		{
 			using namespace Nui;
 
-			ECS::ContextPtr ctx(ECS::Context::Create());
+			std::unique_ptr<ECS::Context> ctx = std::make_unique<ECS::Context>();
 
-			constexpr I32 count = 10;
+			constexpr I32 count = 100000;
 
 			// Add 10 entities
 			for (I32 i = 0; i < count; i++)
@@ -21,7 +21,7 @@ namespace NuiCoreTest
 				ECS::Entity* e = ctx->CreateEntity();
 			}
 
-			Logger::WriteMessage("Created 10 entities");
+			Logger::WriteMessage("Created 100000 entities\n");
 
 			Assert::IsTrue((ctx->GetEntityCount() == count), L"Add entity count mismatch");
 
@@ -34,26 +34,26 @@ namespace NuiCoreTest
 			}
 
 			// Clean context to delete pending
-			ctx->CleanUp();
+			ctx->ClearPending();
 
-			Logger::WriteMessage("Removed 10 entities");
+			Logger::WriteMessage("Removed 100000 entities\n");
 
-			Assert::IsTrue((ctx->GetEntityCount() ==  0), L"Remvove entity count mismatch");
+			Assert::IsTrue((ctx->GetEntityCount() ==  0), L"Remove entity count mismatch");
 		}
 
 		TEST_METHOD(TestECSEntitySystem)
 		{
 			using namespace Nui;
 
-			ECS::ContextPtr ctx(ECS::Context::Create());
-			TestSystem* system = dynamic_cast<TestSystem*>(ctx->RegisterSystem(new TestSystem()));
+			std::unique_ptr<ECS::Context> ctx = std::make_unique<ECS::Context>();
+			TestSystem* system = ctx->RegisterSystem<TestSystem>();
 
 			// Make sure system is initialized
 			Assert::IsNotNull(system, L"TestSystem is nullptr. Registeration failed");
 			Assert::IsTrue(system->m_initialized, L"TestSystem initialization failed");
 
 
-			constexpr I32 count = 10;
+			constexpr I32 count = 100000;
 
 			// Add 10 entities with TestComponent
 			for (I32 i = 0; i < count; i++)
@@ -62,7 +62,7 @@ namespace NuiCoreTest
 				e->Add<TestComponent>(TestComponent{ 0, 0 });
 			}
 
-			Logger::WriteMessage("Created 10 entities");
+			Logger::WriteMessage("Created 100000 entities\n");
 
 			// Make sure 10 entities with TestComponents were added
 			Assert::IsTrue((system->m_testComponentCount == count), L"TestSystem component count mismatch");
