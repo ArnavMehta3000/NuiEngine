@@ -45,10 +45,9 @@ namespace Nui
 
 			Input::Internal::Update();
 
-			if (dt == 0.0f)
+			if (dt == 0.0)
 			{
-				// Skip update on the first frame
-				continue;
+				dt = 0.01;
 			}
 
 			// Update application

@@ -1,9 +1,10 @@
 #pragma once
 #include "Core/Common/CommonHeaders.h"
+#include "Core/Engine/ECS/ECS.h"
 
 namespace Nui
 {
-	class World final
+	class World final : public ECS::Context
 	{
 	public:
 		World();

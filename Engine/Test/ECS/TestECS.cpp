@@ -11,7 +11,7 @@ namespace NuiCoreTest
 		{
 			using namespace Nui;
 
-			ECS::ContextPtr ctx(ECS::Context::Create());
+			std::unique_ptr<ECS::Context> ctx = std::make_unique<ECS::Context>();
 
 			constexpr I32 count = 100000;
 
@@ -34,7 +34,7 @@ namespace NuiCoreTest
 			}
 
 			// Clean context to delete pending
-			ctx->CleanUp();
+			ctx->ClearPending();
 
 			Logger::WriteMessage("Removed 100000 entities\n");
 
@@ -45,8 +45,8 @@ namespace NuiCoreTest
 		{
 			using namespace Nui;
 
-			ECS::ContextPtr ctx(ECS::Context::Create());
-			TestSystem* system = dynamic_cast<TestSystem*>(ctx->RegisterSystem(new TestSystem()));
+			std::unique_ptr<ECS::Context> ctx = std::make_unique<ECS::Context>();
+			TestSystem* system = ctx->RegisterSystem<TestSystem>();
 
 			// Make sure system is initialized
 			Assert::IsNotNull(system, L"TestSystem is nullptr. Registeration failed");
