@@ -171,7 +171,9 @@ namespace Nui::ECS
 			// Insert the new component container into the map
 			m_components.insert({ GetTypeIndex<T>(), std::move(container) });
 
-			auto handle = ComponentHandle<T>(&container->m_data);
+			// Now that the container is safely stored in the map, we can create the handle
+			ComponentHandle<T> handle(&containerRawPtr->m_data);
+
 			m_context->EmitEvent<Events::OnComponentAdd<T>>({ this, handle });
 			return handle;
 		}
@@ -376,7 +378,7 @@ namespace Nui::ECS
 		// Remove the system from the vector
 		auto it = std::remove_if(
 			m_systems.begin(), m_systems.end(), 
-			[] (std::unique_ptr<SystemBase>& system)
+			[&] (std::unique_ptr<SystemBase>& system)
 			{
 				if (dynamic_cast<T*>(system.get()) != nullptr) 
 				{
