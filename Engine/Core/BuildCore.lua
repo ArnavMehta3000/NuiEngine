@@ -13,7 +13,7 @@ project "NuiCore"
     location "%{wks.location}/Engine/Core/"
     links
     {
-        
+        "NuiGraphics"
     }
 
     includedirs 

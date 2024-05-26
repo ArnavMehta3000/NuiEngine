@@ -130,8 +130,6 @@ namespace Nui::Input
 		KEYCODE_COUNT
 	};
 
-
-
 	enum Modifier : U64
 	{
 		MOD_None = 0,

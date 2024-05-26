@@ -1,12 +1,6 @@
 @echo off
 setlocal
 
-rem Check if configuration argument is provided
-if "%~1"=="" (
-    echo Configuration argument is missing. Usage: %0 [DebugEditor|DebugGame|ReleaseEditor|ReleaseGame]
-    exit /b 1
-)
-
 rem Get the current directory
 set "currentDirectory=%CD%"
 
@@ -19,6 +13,17 @@ if "%solutionFileName%"=="" (
     exit /b 1
 )
 
+rem Load VC
+if exist "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\" (
+    echo Loading x64 Professional
+    call "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat"
+) else (
+    if exist "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\" (
+        echo Loading x64 Community
+        call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+    )
+)
+
+cls
 rem Invoke the Visual Studio Developer Command Prompt and execute MSBuild with the specified configuration
 msbuild "%solutionFileName%" -verbosity:minimal /p:Configuration=%~1
-

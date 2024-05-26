@@ -27,21 +27,21 @@ namespace Nui::Input
 		{
 			U64 m = 0;  // Modifier::None
 			if (IsVKPressed(VK_LSHIFT))   
-				m |= static_cast<U64>(Modifier::MOD_LShift);
+				m |= Modifier::MOD_LShift;
 			if (IsVKPressed(VK_RSHIFT))   
-				m |= static_cast<U64>(Modifier::MOD_RShift);
+				m |= Modifier::MOD_RShift;
 			if (IsVKPressed(VK_LCONTROL)) 
-				m |= static_cast<U64>(Modifier::MOD_LControl);
+				m |= Modifier::MOD_LControl;
 			if (IsVKPressed(VK_RCONTROL)) 
-				m |= static_cast<U64>(Modifier::MOD_RControl);
+				m |= Modifier::MOD_RControl;
 			if (IsVKPressed(VK_LMENU))    
-				m |= static_cast<U64>(Modifier::MOD_LAlt);
+				m |= Modifier::MOD_LAlt;
 			if (IsVKPressed(VK_RMENU))    
-				m |= static_cast<U64>(Modifier::MOD_RAlt);
+				m |= Modifier::MOD_RAlt;
 			if (IsVKPressed(VK_LWIN))     
-				m |= static_cast<U64>(Modifier::MOD_LSuper);
+				m |= Modifier::MOD_LSuper;
 			if (IsVKPressed(VK_RWIN))     
-				m |= static_cast<U64>(Modifier::MOD_RSuper);
+				m |= Modifier::MOD_RSuper;
 
 			return static_cast<Modifier>(m);
 		}
@@ -90,7 +90,7 @@ namespace Nui::Input
 		bool ProcessKeyboard(U64 vk, bool pressed)
 		{
 			bool handled = false;
-			auto doVKDown= [&](U64 vk)
+			auto doVKDown = [&](U64 vk)
 			{
 				Keyboard::KeyState& state = s_keyboard->KeyStates[ConvertKeyCodeToArrayIndex((KeyCode)VK_LSHIFT)];
 
@@ -146,9 +146,8 @@ namespace Nui::Input
 
 		void Reset(bool resetHeld = false)
 		{
-			// Reset keyboard
 			[[likely]]
-			if (s_keyboard)
+			if (s_keyboard)  // Reset keyboard
 			{
 				for (auto& state: s_keyboard->KeyStates)
 				{
@@ -161,9 +160,8 @@ namespace Nui::Input
 				}
 			}
 
-			// Reset mouse
 			[[likely]]
-			if (s_mouse)
+			if (s_mouse) // Reset mouse
 			{
 				for (auto& state: s_mouse->ButtonStates)
 				{
@@ -359,7 +357,7 @@ namespace Nui::Input
 			NUI_ASSERT((bool)s_keyboard, "Keyboard is not initialized");
 			
 			[[likely]]
-			if ((U64)wParam < 256)
+			if ((U64)wParam < 256 && s_keyboard)
 			{
 				// Process some modifiers early
 				if (ProcessKeyboard(wParam, true))
@@ -367,13 +365,17 @@ namespace Nui::Input
 					return true;
 				}
 
-				Keyboard::KeyState& state = s_keyboard->KeyStates[ConvertKeyCodeToArrayIndex((KeyCode)wParam)];
+				U64 index = ConvertKeyCodeToArrayIndex(KeyCode(wParam));
+				if (index > s_keyboard->KeyStates.size())
+					return false;
+
+				Keyboard::KeyState& state = s_keyboard->KeyStates[index];
 				NUI_ASSERT(state.Key == KeyCode(wParam), "WPARAM is not a KeyCode");
 
 				if (!state.IsHeld)
 				{
-					state.IsPressed = true;
-					state.IsHeld = true;
+					state.IsPressed  = true;
+					state.IsHeld     = true;
 					state.IsReleased = false;
 				}
 				else
@@ -392,7 +394,7 @@ namespace Nui::Input
 			NUI_ASSERT((bool)s_keyboard, "Keyboard is not initialized");
 
 			[[likely]]
-			if ((U64)wParam < 256)
+			if ((U64)wParam < 256 && s_keyboard)
 			{
 				// Process some modifiers early
 				if (ProcessKeyboard(wParam, true))
@@ -400,11 +402,15 @@ namespace Nui::Input
 					return true;
 				}
 
-				Keyboard::KeyState& state = s_keyboard->KeyStates[ConvertKeyCodeToArrayIndex(KeyCode(wParam))];
+				U64 index = ConvertKeyCodeToArrayIndex(KeyCode(wParam));
+				if (index > s_keyboard->KeyStates.size())
+					return false;
+
+				Keyboard::KeyState& state = s_keyboard->KeyStates[index];
 				NUI_ASSERT(state.Key == KeyCode(wParam), "WPARAM is not a KeyCode");
 
-				state.IsPressed = false;
-				state.IsHeld = false;
+				state.IsPressed  = false;
+				state.IsHeld     = false;
 				state.IsReleased = true;
 				return true;
 			}
@@ -416,7 +422,7 @@ namespace Nui::Input
 			U32 dwSize = sizeof(RAWINPUT);
 			static BYTE lpb[sizeof(RAWINPUT)];
 
-			GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
+			::GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
 
 			RAWINPUT* raw = (RAWINPUT*)lpb;
 
@@ -431,7 +437,7 @@ namespace Nui::Input
 					s_mouse->RawDelta.Y = raw->data.mouse.lLastY;
 				}
 			}
-			return 0;
+			return true;
 		}
 
 		case WM_LBUTTONDOWN:

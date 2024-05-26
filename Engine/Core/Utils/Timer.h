@@ -5,12 +5,12 @@ namespace Nui
 {
 	/**
 	* @brief Timer class 
-	* @param ClockType Custom clock type, default is high_resolution_clock
 	*/
-	template<typename ClockType = chrono::high_resolution_clock>
 	class Timer
 	{
 	private:
+		using ClockType = chrono::high_resolution_clock;
+
 		/**
 		* @brief Time value helper struct
 		*/
@@ -77,7 +77,7 @@ namespace Nui
 		* @return Elapsed time in seconds
 		* @see GetElapsedMilliseconds
 		*/
-		Time GetElapsedSeconds()
+		Time GetElapsedSeconds() const
 		{
 			return Time{ GetElapsedMilliseconds().Time / 1000.0 };
 		}
@@ -87,7 +87,7 @@ namespace Nui
 		* @return Elapsed time in milliseconds
 		* @see GetElapsedSeconds
 		*/
-		Time GetElapsedMilliseconds()
+		Time GetElapsedMilliseconds() const
 		{
 			chrono::time_point<ClockType> endTime;
 

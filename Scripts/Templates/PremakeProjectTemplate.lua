@@ -14,7 +14,8 @@ project "%PROJECT_NAME%"
     location "%PROJECT_DIR%"
     links
     {
-        "NuiCore"
+        "NuiCore",
+        "NuiGraphics"
     }
 
     includedirs 

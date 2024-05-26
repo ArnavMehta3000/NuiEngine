@@ -161,7 +161,7 @@ namespace Nui::Log
 	}
 
 	template <typename... Args>
-	constexpr StringW FormatW(Args&&... args)
+	constexpr WString FormatW(Args&&... args)
 	{
 		// Reference: 
 
@@ -176,7 +176,7 @@ namespace Nui::Log
 
 		braces.back() = L'\0';
 
-		return std::vformat(StringViewW(braces.data()), std::make_wformat_args(args...));
+		return std::vformat(WStringView(braces.data()), std::make_wformat_args(args...));
 	}
 
 	/**

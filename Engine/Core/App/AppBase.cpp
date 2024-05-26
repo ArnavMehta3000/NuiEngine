@@ -2,25 +2,27 @@
 
 namespace Nui
 {
-	AppBase::AppBase(StringViewW appName, Window::Style style, Window::Size size)
+	AppBase::AppBase(WStringView appName, Window::Style style, Window::Size size)
 		: Window(style, appName, size)
-		, m_wantsToClose(false)
 	{
+		m_world = std::make_unique<World>();
 	}
 
-	AppBase::~AppBase()
+	void AppBase::PreInit()
 	{
-
+		// Set up default world systems
+		m_world->OnInit();
 	}
 
-	void AppBase::Run()
+	void AppBase::Tick(const F64 dt)
 	{
-		while (!m_wantsToClose && !Window::WantsToClose())
-		{
-		}
+		// Update world
+		m_world->Update(dt);
 	}
-	void AppBase::Quit()
+
+	void AppBase::PostShutdown()
 	{
-		m_wantsToClose = true;
+		// Clean up world
+		m_world->OnShutdown();
 	}
 }
