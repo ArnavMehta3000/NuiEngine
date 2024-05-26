@@ -9,6 +9,7 @@
 #include <format>
 #include <algorithm>
 #include <functional>
+#include <compare>
 
 #include "Core/Common/Types.h"
 #include "Core/Utils/Log.h"
