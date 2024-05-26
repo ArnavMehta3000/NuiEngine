@@ -4,7 +4,9 @@
 
 namespace Nui::ECS
 {
-	// Concept - is true when a class derives from SystemBase
+	/**
+	* @brief A concept that checks if a class derives from SystemBase
+	*/
 	template <typename T>
 	concept IsSystem = std::is_base_of<SystemBase, T>::value;
 
