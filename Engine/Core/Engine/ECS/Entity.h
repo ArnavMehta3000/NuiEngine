@@ -10,7 +10,14 @@ namespace Nui::ECS
 	{
 		friend class Context;
 	public:
+		/**
+		 * @brief Invalid entity ID
+		 */
 		constexpr static U64 InvalidId = 0;
+
+		/**
+		 * @brief Maps component type indices to unique pointers to component containers
+		 */
 		using ComponentMap = std::unordered_map<TypeIndex, std::unique_ptr<Internal::ComponentContainerBase>>;
 
 	public:

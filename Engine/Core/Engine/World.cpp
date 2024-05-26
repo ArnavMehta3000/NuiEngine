@@ -11,8 +11,6 @@ namespace Nui
 	{
 	}
 
-	World::~World() = default;
-
 	void World::OnInit()
 	{
 		m_transformSystem = Context::RegisterSystem<Systems::TransformSystem>();

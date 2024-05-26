@@ -5,6 +5,9 @@
 
 namespace Nui
 {
+	/**
+	 * @brief Class representing a window in the application
+	 */
 	class Window
 	{
 	public:

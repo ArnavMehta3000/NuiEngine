@@ -14,6 +14,9 @@ namespace Nui::ECS
 	class Context
 	{
 	public:
+		/**
+		 * @brief Unordered map of subscribers to array of events subscriber base pointers
+		 */
 		using SubscriberMap = std::unordered_map<TypeIndex, std::vector<Internal::EventSubscriberBase*>, std::hash<TypeIndex>, std::equal_to<TypeIndex>>;
 
 
@@ -183,9 +186,24 @@ namespace Nui::ECS
 		void Tick(const F64 dt);
 
 	private:
-		std::vector<std::unique_ptr<Entity>>     m_entities;
+		/**
+		 * @brief Array of unique pointers of entities in the ECS context
+		 */
+		std::vector<std::unique_ptr<Entity>> m_entities;
+
+		/**
+		 * @brief Array of unique pointers of systems in the ECS context
+		 */
 		std::vector<std::unique_ptr<SystemBase>> m_systems;
-		SubscriberMap                            m_subscribers;
-		U64                                      m_lastEntityId{ 0 };
+
+		/**
+		 * @brief Map of subscribers in the ECS context
+		 */
+		SubscriberMap m_subscribers;
+
+		/**
+		 * @brief Last entity id
+		 */
+		U64 m_lastEntityId{ 0 };
 	};
 }

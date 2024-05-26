@@ -12,14 +12,11 @@ namespace Nui::Systems
 
 	void TransformSystem::OnUpdate(ECS::Context* ctx, const F64 dt)
 	{
-		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnUpdate");
-
 		ctx->Each<Components::Transform>(
 			[&](ECS::Entity* e, ECS::ComponentHandle<Components::Transform> transform)
 			{
 				if (transform->IsDirty())
 				{
-					NUI_LOG(Debug, TransformSystem, "TransformSystem::OnUpdate - Recalculated world matrices");
 					transform->RecalculateWorldMatrix();
 				}
 			});
@@ -33,7 +30,7 @@ namespace Nui::Systems
 
 	void TransformSystem::OnEvent(ECS::Context* ctx, const ECS::Events::OnEntityCreate& event)
 	{
-		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnEvent - OnEntityCreate - Added transfrom component");
+		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnEvent - OnEntityCreate");
 		
 		// Sanity check
 		if (event.Entity->Has<Components::Transform>())
@@ -44,13 +41,13 @@ namespace Nui::Systems
 		// Add a transform to every entity on creation
 		auto transform = event.Entity->Add<Components::Transform>(Components::Transform());
 
-		NUI_ASSERT(transform.IsValid(), "TransformSystem::OnEvent<OnEntityCreate> - invalid transfrom added");
+		NUI_ASSERT(transform.IsValid(), "TransformSystem::OnEvent - OnEntityCreate: Invalid transfrom added");
 
 	}
 
 	void TransformSystem::OnEvent(ECS::Context* ctx, const ECS::Events::OnComponentAdd<Components::Transform>& event)
 	{
-		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnEvent - OnComponentAdd<Transform> - RecalculateWorldMatrix");
+		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnEvent - OnComponentAdd<Transform>");
 		
 		// Recalculate world matrices on creation
 		event.Component->RecalculateWorldMatrix();
