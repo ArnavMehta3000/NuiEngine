@@ -2,6 +2,10 @@
 
 Nui Engine is a simple editor-less, code-first focused game engine/framework written in C++ 23. The entire journey of making it is being documented on my website [here](https://arnavmehta3000.github.io/posts/mage0/). Active development happpens on the `dev` branch and changes are merged into `main` when stable and tested. 
 
+# Documentation
+
+Nui Engine is documented using Doxygen (see Docs folder for Doxyfile). You can read the auto generated project documentation [here](https://arnavmehta3000.github.io/NuiEngine/).
+
 # Requirements
 
 - Premake5 (included in repository)
