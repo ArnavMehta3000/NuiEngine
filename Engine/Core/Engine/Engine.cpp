@@ -1,6 +1,7 @@
 #include "Core/Engine/Engine.h"
 #include "Core/Utils/Filesystem.h"
-
+#include <thread>
+#include <chrono>
 
 namespace Nui
 {
@@ -33,6 +34,7 @@ namespace Nui
 
 	void Engine::Run()
 	{
+		m_app->PreInit();
 		m_app->OnInit();
 
 		Timer updateLoop;
@@ -45,21 +47,20 @@ namespace Nui
 
 			Input::Internal::Update();
 
-			if (dt == 0.0)
-			{
-				dt = 0.01;
-			}
-
 			// Update application
 			m_app->Tick(dt);
 
 			dt = now - elapsed;
 			elapsed = now;
+
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(5ms);
 		}
 
 		updateLoop.Stop();
 
 		m_app->OnShutdown();
+		m_app->PostShutdown();
 	}
 
 	void Engine::Quit()

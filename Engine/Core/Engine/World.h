@@ -1,11 +1,16 @@
 #pragma once
 #include "Core/Common/CommonHeaders.h"
 #include "Core/Engine/ECS/ECS.h"
+#include "Core/Engine/Components/TransformComponent.h"
 
 namespace Nui
 {
+	namespace Systems { class TransformSystem; }
+
 	class World final : public ECS::Context
 	{
+		friend class AppBase;
+
 	public:
 		World();
 		World(const World&) = delete;
@@ -15,12 +20,12 @@ namespace Nui
 		World operator=(const World&) = delete;
 		World operator=(World&&) = delete;
 
+	private:
+		void OnInit();
 		void Update(const F64 dt);
-
-		inline void SetActive(bool active) { m_isActive = active; }
-		bool IsActive() const { return m_isActive; }
+		void OnShutdown();
 
 	private:
-		bool m_isActive;
+		Systems::TransformSystem* m_transformSystem;
 	};
 }

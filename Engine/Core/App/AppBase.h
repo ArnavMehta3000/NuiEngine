@@ -21,7 +21,9 @@ namespace Nui
 		AppBase(const AppBase&) = delete;
 		AppBase(AppBase&&) = delete;
 
+		void PreInit();
 		void Tick(const F64 dt);
+		void PostShutdown();
 
 	private:
 		std::unique_ptr<World> m_world;

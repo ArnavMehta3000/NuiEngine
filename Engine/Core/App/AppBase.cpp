@@ -8,11 +8,21 @@ namespace Nui
 		m_world = std::make_unique<World>();
 	}
 
+	void AppBase::PreInit()
+	{
+		// Set up default world systems
+		m_world->OnInit();
+	}
+
 	void AppBase::Tick(const F64 dt)
 	{
-		if (m_world->IsActive())
-		{
-			m_world->Update(dt);
-		}
+		// Update world
+		m_world->Update(dt);
+	}
+
+	void AppBase::PostShutdown()
+	{
+		// Clean up world
+		m_world->OnShutdown();
 	}
 }
