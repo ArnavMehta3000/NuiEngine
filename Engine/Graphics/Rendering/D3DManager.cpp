@@ -183,7 +183,7 @@ namespace Nui::Graphics
 		}
 	}
 
-	void D3DManager::Present()
+	void D3DManager::Present() const
 	{
 		if (!m_device)
 			throw std::runtime_error("Attempted to present with invalid graphics device!");
