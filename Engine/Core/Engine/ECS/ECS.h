@@ -352,6 +352,17 @@ namespace Nui::ECS
 		m_lastEntityId = 0;
 	}
 
+	inline void Context::UnregisterAllSystems()
+	{
+		// Shutdown all systems, and clear the vector
+		for (std::unique_ptr<SystemBase>& system : m_systems)
+		{
+			system->OnShutdown(this);
+		}
+
+		m_systems.clear();
+	}
+
 	template <typename T, typename... Args>
 	inline T* Context::RegisterSystem(Args&&... args) requires IsSystem<T>
 	{
