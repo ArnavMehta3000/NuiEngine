@@ -51,6 +51,6 @@ namespace Nui::ECS
 		/**
 		 * @brief Enabled flag for the system
 		 */
-		bool m_enabled;
+		bool m_enabled{ true };
 	};
 }
