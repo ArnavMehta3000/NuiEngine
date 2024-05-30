@@ -103,3 +103,21 @@ namespace Nui::ECS
 		};
 	}
 }
+
+// Use this macro to inherit from Nui::ECS::EventSubscriber<Type>
+#define NUI_EVENT_SUBSCRIBER(Type) public ECS::EventSubscriber<Type>
+
+// Use this macro to declare an event function in header files (needs use of NUI_EVENT_SUBSCRIBER macro with same type)
+#define NUI_DECLARE_EVENT(Type) virtual void OnEvent(Nui::ECS::Context* ctx, const Type& event) override
+
+// Use this macro to define an event function in source files (needs use of NUI_DECLARE_EVENT macro)
+#define NUI_DEFINE_EVENT(Class, Type) void Class::OnEvent(Nui::ECS::Context* ctx, const Type& event)
+
+// Use this macro to subscribe to an event function (needs use of NUI_DECLARE_EVENT & NUI_EVENT_SUBSCRIBER macro)
+#define NUI_SUBSCRIBE_EVENT(ECSContext, Type) ECSContext->SubscribeEvent<Type>(this)
+
+// Use this macro to unsubscribe from an event function (needs use of NUI_DECLARE_EVENT & NUI_EVENT_SUBSCRIBER macro)
+#define NUI_UNSUBSCRIBE_EVENT(ECSContext, Type) ECSContext->UnsubscribeEvent<Type>(this)
+
+// Use this macro to unsubscribe from all events - use in destructor/shutdown functions
+#define NUI_UNSUBSCRIBE_EVENTS_ALL(ECSContext) ECSContext->UnsubscribeAll(this)

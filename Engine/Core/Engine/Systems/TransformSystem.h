@@ -24,9 +24,9 @@ namespace Nui::Systems
 	 * @details This system adds the `Transform` component to every entity on creation and recalculates the world matrix
 	 */
 	class TransformSystem : public ECS::SystemBase,
-							public ECS::EventSubscriber<ECS::Events::OnEntityCreate>,
-							public ECS::EventSubscriber<ECS::Events::OnComponentAdd<Components::Transform>>,
-							public ECS::EventSubscriber<Events::ForceTransformRecalculation>
+							NUI_EVENT_SUBSCRIBER(ECS::Events::OnEntityCreate),
+							NUI_EVENT_SUBSCRIBER(ECS::Events::OnComponentAdd<Components::Transform>),
+							NUI_EVENT_SUBSCRIBER(Events::ForceTransformRecalculation)
 	{
 	public:
 		/**
@@ -59,20 +59,20 @@ namespace Nui::Systems
 		 * @param event Event data
 		 * @details Adds the `Transform` component to the entity
 		 */
-		virtual void OnEvent(ECS::Context* ctx, const ECS::Events::OnEntityCreate& event) override;
+		NUI_DECLARE_EVENT(ECS::Events::OnEntityCreate);
 
 		/**
 		 * @brief Called when a `Transform` component is added to an entity
 		 * @param ctx Pointer to the ECS Context
 		 * @param event Event data
 		 */
-		virtual void OnEvent(ECS::Context* ctx, const ECS::Events::OnComponentAdd<Components::Transform>& event) override;
+		NUI_DECLARE_EVENT(ECS::Events::OnComponentAdd<Components::Transform>);
 
 		/**
 		 * @brief Called when a `Nui::Systems::Events::ForceTransformRecalculation` event is triggered
 		 * @param ctx Pointer to the ECS Context
 		 * @param event Event data
 		 */
-		virtual void OnEvent(ECS::Context* ctx, const Events::ForceTransformRecalculation& event) override;
+		NUI_DECLARE_EVENT(Events::ForceTransformRecalculation);
 	};
 }

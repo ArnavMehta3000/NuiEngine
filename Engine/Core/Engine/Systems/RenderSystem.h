@@ -13,7 +13,7 @@ namespace Nui::Systems
 	}
 
 	class RenderSystem : public ECS::SystemBase,
-						 public ECS::EventSubscriber<Events::EndFrame>
+						 NUI_EVENT_SUBSCRIBER(Events::EndFrame)
 	{
 	public:
 		/**
@@ -46,6 +46,6 @@ namespace Nui::Systems
 		 * @param ctx Pointer to the ECS Context
 		 * @param event Event data
 		 */
-		virtual void OnEvent(ECS::Context* ctx, const Events::EndFrame& event) override;
+		NUI_DECLARE_EVENT(Events::EndFrame);
 	};
 }

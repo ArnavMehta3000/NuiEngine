@@ -8,6 +8,8 @@ namespace Nui::Systems
 	{
 		NUI_ASSERT(Graphics::IsInitialized(), 
 			"RenderSystem::OnInit: Graphics not initialized. Initialize the graphics system before initializing the render system.");
+		
+		NUI_SUBSCRIBE_EVENT(ctx, Events::EndFrame);
 	}
 
 	void RenderSystem::OnUpdate(ECS::Context* ctx, const F64 dt)
@@ -16,9 +18,11 @@ namespace Nui::Systems
 
 	void RenderSystem::OnShutdown(ECS::Context* ctx)
 	{
+		NUI_UNSUBSCRIBE_EVENTS_ALL(ctx);
 	}
 
-	void RenderSystem::OnEvent(ECS::Context* ctx, const Events::EndFrame& event)
+	NUI_DEFINE_EVENT(RenderSystem, Events::EndFrame)
 	{
+		NUI_LOG(Info, RenderSystem, "RenderSystem::OnEvent - EndFrame");
 	}
 }

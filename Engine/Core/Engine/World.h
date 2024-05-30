@@ -6,7 +6,11 @@
 namespace Nui
 {
 	// Forward declarations
-	namespace Systems { class TransformSystem; }
+	namespace Systems 
+	{ 
+		class TransformSystem; 
+		class RenderSystem;
+	}
 
 	/**
 	 * @brief World class - the main context for the engine
@@ -54,5 +58,10 @@ namespace Nui
 		 * @brief Pointer to the transform system in the ECS Context
 		 */
 		Systems::TransformSystem* m_transformSystem;
+
+		/**
+		 * @brief Pointer to the render system in the ECS Context
+		 */
+		Systems::RenderSystem* m_renderSystem;
 	};
 }
