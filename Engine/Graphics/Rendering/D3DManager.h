@@ -20,6 +20,11 @@ namespace Nui::Graphics
 		~D3DManager();
 
 		/**
+		 * @brief Checks if the device resources have been initialized
+		 */
+		bool IsInitialized() const noexcept;
+
+		/**
 		 * @brief Initializes the device resources.
 		 * @param outputWindow Output window handle.
 		 */
@@ -108,56 +113,15 @@ namespace Nui::Graphics
 		[[nodiscard]] U32 GetNumVSyncInterval() const noexcept { return m_numVSYNCIntervals; }
 
 		/**
-		 * @brief Sets the format of the back buffer.
-		 * @param format Format of the back buffer.
+		 * @brief Resizes the back buffer.
+		 * @param width New width of the back buffer.
+		 * @param height New height of the back buffer.
 		 */
-		void SetBackBufferFormat(DXGI_FORMAT format) { m_backBufferFormat = format; };
-
-		/**
-		 * @brief Sets the width of the back buffer.
-		 * @param width Width of the back buffer.
-		 */
-		void SetBackBufferWidth(U32 width) { m_backBufferWidth = width; };
-
-		/**
-		 * @brief Sets the height of the back buffer.
-		 * @param height Height of the back buffer.
-		 */
-		void SetBackBufferHeight(U32 height) { m_backBufferHeight = height; };
-
-		/**
-		 * @brief Sets the multi-sample count of the back buffer.
-		 * @param count Multi-sample count of the back buffer.
-		 */
-		void SetBackBufferMSCount(U32 count) { m_multiSampleCount = count; };
-
-		/**
-		 * @brief Sets the multi-sample quality of the back buffer.
-		 * @param quality Multi-sample quality of the back buffer.
-		 */
-		void SetBackBufferMSQuality(U32 quality) { m_multiSampleQuality = quality; };
-
-		/**
-		 * @brief Enables or disables vertical synchronization.
-		 * @param enabled True to enable VSync, false to disable.
-		 */
-		void SetVSYNCEnabled(bool enabled) { m_vsync = enabled; };
-
-		/**
-		 * @brief Sets the minimum feature level for the device.
-		 * @param level Minimum feature level.
-		 */
-		void SetMinFeatureLevel(D3D_FEATURE_LEVEL level) { m_minFeatureLevel = level; };
-
-		/**
-		 * @brief Sets the number of vertical synchronization intervals.
-		 * @param intervals Number of VSync intervals.
-		 */
-		void SetNumVSYNCIntervals(U32 intervals) { m_numVSYNCIntervals = intervals; };
+		void Resize(U32 width, U32 height) noexcept { m_backBufferWidth = width; m_backBufferHeight = height; }
 
 	private:
 		/**
-		 * @brief Checks for a suitable output for rendering.
+		 * @brief Checks for a suitable display output for rendering.
 		 */
 		void CheckForSuitableOutput();
 

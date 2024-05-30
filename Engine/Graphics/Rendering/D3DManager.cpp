@@ -13,6 +13,7 @@ namespace Nui::Graphics
 		, m_vsync(true)
 		, m_refreshRate({ 0, 0 })
 		, m_numVSYNCIntervals(1)
+		, m_hWnd(nullptr)
 	{
 	}
 
@@ -34,6 +35,14 @@ namespace Nui::Graphics
 		SafeReleaseCOM(m_factory.ReleaseAndGetAddressOf());
 	}
 
+	bool D3DManager::IsInitialized() const noexcept
+	{
+		// Return true if all objects are initialized
+		return m_device != nullptr 
+			&& m_immediateContext != nullptr 
+			&& m_swapChain != nullptr;
+	}
+
 	bool D3DManager::Init(HWND outputWindow)
 	{
 		// Get window size
@@ -42,7 +51,7 @@ namespace Nui::Graphics
 		::GetClientRect(m_hWnd, &rect);
 
 		// Set back buffer size to window dimensions
-		m_backBufferWidth = rect.right - rect.left;
+		m_backBufferWidth  = rect.right - rect.left;
 		m_backBufferHeight = rect.bottom - rect.top;
 
 		CheckForSuitableOutput();
@@ -69,7 +78,6 @@ namespace Nui::Graphics
 #ifdef NUI_DEBUG
 		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-
 
 		ComPtr<ID3D11Device> device;
 		ComPtr<ID3D11DeviceContext> context;
@@ -104,12 +112,49 @@ namespace Nui::Graphics
 		}
 
 #if NUI_DEBUG
-		if (D3DPERF_GetStatus() == 0)
-		{
-			ID3D11InfoQueue* infoQueue;
-			DXCall(device->QueryInterface(IID_PPV_ARGS(&infoQueue)));
-			infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
-			infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
+		{  // Scoped so COM objects can be safely released
+			ComPtr<ID3D11Debug> d3dDebug;
+			if (SUCCEEDED(m_device.As(&d3dDebug)))
+			{
+				ComPtr<ID3D11InfoQueue> d3dInfoQueue;
+				if (SUCCEEDED(d3dDebug.As(&d3dInfoQueue)))
+				{
+					// Treat warnings as errors
+					d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+					d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+					d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
+
+					D3D11_MESSAGE_ID hide[] =
+					{
+						// Add more message IDs here as needed
+						D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
+					};
+
+					D3D11_INFO_QUEUE_FILTER filter = {};
+					filter.DenyList.NumIDs = _countof(hide);
+					filter.DenyList.pIDList = hide;
+					d3dInfoQueue->AddStorageFilterEntries(&filter);
+				}
+			}
+
+			// Enabling DXGI debug layer
+			// Ref: https://walbourn.github.io/dxgi-debug-device/
+
+			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
+			typedef HRESULT(WINAPI* LPDXGIGETDEBUGINTERFACE)(REFIID, void**);
+			HMODULE dxgidebug = LoadLibraryEx(L"dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+
+			if (dxgidebug)
+			{
+				auto dxgiGetDebugInterface = reinterpret_cast<LPDXGIGETDEBUGINTERFACE>(
+					reinterpret_cast<void*>(::GetProcAddress(dxgidebug, "DXGIGetDebugInterface")));
+
+				if (SUCCEEDED(dxgiGetDebugInterface(IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
+				{
+					dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+					dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+				}
+			}
 		}
 #endif // NUI_DEBUG
 

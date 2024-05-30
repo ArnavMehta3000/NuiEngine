@@ -3,14 +3,24 @@
 
 namespace Nui::Graphics
 {
-	bool Init(HWND outputWindow)
+	void Init(HWND outputWindow)
 	{
-		// Create renderer singleton here
-		return true;
+		Singleton<D3DManager>::Get().Init(outputWindow);
+	}
+
+	void Resize(U32 width, U32 height)
+	{
+		Singleton<D3DManager>::Get().Resize(width, height);
+		Singleton<D3DManager>::Get().Reset();
 	}
 
 	void Shutdown()
 	{
-		// Destroy renderer singleton here
+		Singleton<D3DManager>::Destroy();
+	}
+
+	bool IsInitialized()
+	{
+		return Singleton<D3DManager>::Get().IsInitialized();
 	}
 }

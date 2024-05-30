@@ -5,6 +5,9 @@
 
 namespace Nui::Graphics
 {
-	bool Init(HWND outputWindow);
+	void Init(HWND outputWindow);
+	void Resize(U32 width, U32 height);
 	void Shutdown();
+
+	bool IsInitialized();
 }
