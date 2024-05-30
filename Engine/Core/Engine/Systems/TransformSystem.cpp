@@ -52,4 +52,23 @@ namespace Nui::Systems
 		// Recalculate world matrices on creation
 		event.Component->RecalculateWorldMatrix();
 	}
+
+	void TransformSystem::OnEvent(ECS::Context* ctx, const Events::ForceTransformRecalculation& event)
+	{
+		ctx->Each<Components::Transform>(
+			[&](ECS::Entity* e, ECS::ComponentHandle<Components::Transform> transform)
+			{
+				if (event.IncludeDirty)  // Update all
+				{
+					transform->RecalculateWorldMatrix();
+				}
+				else  // Update only dirty
+				{
+					if (transform->IsDirty())
+					{
+						transform->RecalculateWorldMatrix();
+					}
+				}
+			});
+	}
 }

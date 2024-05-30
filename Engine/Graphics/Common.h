@@ -9,10 +9,10 @@
 #include <wincodec.h>
 #include <dxgi1_6.h>
 #include <d3d11_4.h>
-#include <d3d9.h>  // For performance events
 #include <dxgidebug.h>
 #include <d3dcompiler.h>
 #include <d3d11shader.h>
+#include <DirectXColors.h>
 
 
 // Library links
@@ -71,19 +71,6 @@ namespace Nui::Graphics
 			*ptr = nullptr;
 		}
 	}
-
-	struct GfxEvent
-	{
-		GfxEvent(const wchar_t* markerName)
-		{
-			D3DPERF_BeginEvent(0xFFFFFFFF, markerName);
-		}
-
-		~GfxEvent()
-		{
-			D3DPERF_EndEvent();
-		}
-	};
 
 	template <typename T>
 	HRESULT SetDebugName(T deviceChild, const String& debugName)

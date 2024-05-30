@@ -4,13 +4,29 @@
 
 namespace Nui::Systems
 {
+	namespace Events
+	{
+		/**
+		 * @brief Event for the `TransformSystem` to force a recalculation of the world matrix
+		 */
+		struct ForceTransformRecalculation
+		{ 
+			/**
+			 * @brief Whether to include dirty components in the recalculation (default: `true`)
+			 * @details If set to `false`, only dirty components will be recalculated
+			 */
+			bool IncludeDirty = true; 
+		};
+	}
+
 	/**
 	 * @brief ECS system that handles updating transform components
 	 * @details This system adds the `Transform` component to every entity on creation and recalculates the world matrix
 	 */
 	class TransformSystem : public ECS::SystemBase,
 							public ECS::EventSubscriber<ECS::Events::OnEntityCreate>,
-							public ECS::EventSubscriber<ECS::Events::OnComponentAdd<Components::Transform>>
+							public ECS::EventSubscriber<ECS::Events::OnComponentAdd<Components::Transform>>,
+							public ECS::EventSubscriber<Events::ForceTransformRecalculation>
 	{
 	public:
 		/**
@@ -51,5 +67,12 @@ namespace Nui::Systems
 		 * @param event Event data
 		 */
 		virtual void OnEvent(ECS::Context* ctx, const ECS::Events::OnComponentAdd<Components::Transform>& event) override;
+
+		/**
+		 * @brief Called when a `Nui::Systems::Events::ForceTransformRecalculation` event is triggered
+		 * @param ctx Pointer to the ECS Context
+		 * @param event Event data
+		 */
+		virtual void OnEvent(ECS::Context* ctx, const Events::ForceTransformRecalculation& event) override;
 	};
 }

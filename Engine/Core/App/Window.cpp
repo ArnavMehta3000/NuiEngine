@@ -295,6 +295,15 @@ namespace Nui
 			break;
 		}
 
+		case WM_GETMINMAXINFO:
+		{
+			MINMAXINFO* info = reinterpret_cast<MINMAXINFO*>(lParam);
+			info->ptMinTrackSize.x = 200;
+			info->ptMinTrackSize.y = 200;
+
+			return 0;
+		}
+
 		case WM_DESTROY:
 		{
 			::PostQuitMessage(0);
