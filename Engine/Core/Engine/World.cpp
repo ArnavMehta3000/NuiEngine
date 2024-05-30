@@ -1,6 +1,7 @@
 #include "World.h"
 #include "Core/Engine/ECS/ECS.h"
 #include "Core/Engine/Systems/TransformSystem.h"
+#include "Core/Engine/Systems/RenderSystem.h"
 #include "Core/Input/Input.h"
 
 namespace Nui
@@ -8,6 +9,7 @@ namespace Nui
 	World::World()
 		: Context()
 		, m_transformSystem(nullptr)
+		, m_renderSystem(nullptr)
 	{
 	}
 
@@ -15,6 +17,9 @@ namespace Nui
 	{
 		m_transformSystem = Context::RegisterSystem<Systems::TransformSystem>();
 		NUI_ASSERT(m_transformSystem, "Failed to regsiter transform system for world!");
+
+		m_renderSystem = Context::RegisterSystem<Systems::RenderSystem>();
+		NUI_ASSERT(m_renderSystem, "Failed to regsiter render system for world!");
 	}
 
 	void World::Update(const F64 dt)
@@ -37,10 +42,12 @@ namespace Nui
 			}
 		}
 
-
 		// Update ECS
 		Context::ClearPending();
 		Context::Tick(dt);
+
+		// Trigger end frame
+		Context::EmitEvent(Systems::Events::EndFrame{});
 	}
 
 	void World::OnShutdown()

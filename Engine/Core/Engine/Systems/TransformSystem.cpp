@@ -6,8 +6,9 @@ namespace Nui::Systems
 	{
 		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnInit");
 
-		ctx->SubscribeEvent<ECS::Events::OnEntityCreate>(this);
-		ctx->SubscribeEvent<ECS::Events::OnComponentAdd<Components::Transform>>(this);
+		NUI_SUBSCRIBE_EVENT(ctx, ECS::Events::OnEntityCreate);
+		NUI_SUBSCRIBE_EVENT(ctx, ECS::Events::OnComponentAdd<Components::Transform>);
+		NUI_SUBSCRIBE_EVENT(ctx, Events::ForceTransformRecalculation);
 	}
 
 	void TransformSystem::OnUpdate(ECS::Context* ctx, const F64 dt)
@@ -25,10 +26,10 @@ namespace Nui::Systems
 	void TransformSystem::OnShutdown(ECS::Context* ctx)
 	{
 		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnShutdown");
-		ctx->UnsubscribeAll(this);
+		NUI_UNSUBSCRIBE_EVENTS_ALL(ctx);
 	}
 
-	void TransformSystem::OnEvent(ECS::Context* ctx, const ECS::Events::OnEntityCreate& event)
+	NUI_DEFINE_EVENT(TransformSystem, ECS::Events::OnEntityCreate)
 	{
 		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnEvent - OnEntityCreate");
 		
@@ -45,7 +46,7 @@ namespace Nui::Systems
 
 	}
 
-	void TransformSystem::OnEvent(ECS::Context* ctx, const ECS::Events::OnComponentAdd<Components::Transform>& event)
+	NUI_DEFINE_EVENT(TransformSystem, ECS::Events::OnComponentAdd<Components::Transform>)
 	{
 		NUI_LOG(Debug, TransformSystem, "TransformSystem::OnEvent - OnComponentAdd<Transform>");
 		
@@ -53,7 +54,7 @@ namespace Nui::Systems
 		event.Component->RecalculateWorldMatrix();
 	}
 
-	void TransformSystem::OnEvent(ECS::Context* ctx, const Events::ForceTransformRecalculation& event)
+	NUI_DEFINE_EVENT(TransformSystem, Events::ForceTransformRecalculation)
 	{
 		ctx->Each<Components::Transform>(
 			[&](ECS::Entity* e, ECS::ComponentHandle<Components::Transform> transform)
