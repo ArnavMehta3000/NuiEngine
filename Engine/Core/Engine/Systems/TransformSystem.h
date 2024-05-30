@@ -30,11 +30,6 @@ namespace Nui::Systems
 	{
 	public:
 		/**
-		 * @brief Virtual default destructor
-		 */
-		virtual ~TransformSystem() = default;
-
-		/**
 		 * @brief Initializes the system and subscribes to events
 		 * @param ctx Pointer to the ECS Context
 		 */
@@ -53,6 +48,7 @@ namespace Nui::Systems
 		 */
 		virtual void OnShutdown(ECS::Context* ctx) override;
 
+	private:
 		/**
 		 * @brief Called when an entity is created
 		 * @param ctx Pointer to the ECS Context
