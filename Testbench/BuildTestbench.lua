@@ -14,7 +14,7 @@ project "Testbench"
 	debugdir(debugDirectory)
 	targetname "Testbench"
 
-	location "E:/Dev/NuiEngine/Testbench"
+	location "D:/ARNAV/DEV/CPP/NuiEngine/Testbench"
 	links 
 	{
 		"NuiCore",

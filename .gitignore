@@ -402,3 +402,4 @@ compile_commands.json
 *.vcxproj
 *.vcxproj.filters
 premake5.lua
+vsxmake2022
