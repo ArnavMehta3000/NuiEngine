@@ -1,0 +1,22 @@
+#include "%PROJECT_NAME%App.h"
+
+%PROJECT_NAME%App::%PROJECT_NAME%App()
+	: Nui::AppBase(L"%PROJECT_NAME%App", Nui::Window::Style::Windowed, { 1280, 720 })
+{
+
+}
+
+%PROJECT_NAME%App::~%PROJECT_NAME%App()
+{
+
+}
+
+void %PROJECT_NAME%App::OnInit()
+{
+	NUI_LOG(Info, %PROJECT_NAME%App, "Initializing %PROJECT_NAME% App");
+}
+
+void %PROJECT_NAME%App::OnShutdown()
+{
+	NUI_LOG(Info, %PROJECT_NAME%App, "Shutting down %PROJECT_NAME% App");
+}

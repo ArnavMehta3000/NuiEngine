@@ -1,0 +1,12 @@
+#pragma once
+#include <Core/App/AppBase.h>
+
+class %PROJECT_NAME%App : public Nui::AppBase
+{
+public:
+	%PROJECT_NAME%App();
+	virtual ~%PROJECT_NAME%App();
+
+	void OnInit() override;
+	void OnShutdown() override;
+};

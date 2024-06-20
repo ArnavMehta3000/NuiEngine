@@ -1,0 +1,4 @@
+#include <Core/EntryPoint.h>
+#include "%PROJECT_NAME%/%PROJECT_NAME%App.h"
+
+NUI_DECLARE_APP(%PROJECT_NAME%App)
