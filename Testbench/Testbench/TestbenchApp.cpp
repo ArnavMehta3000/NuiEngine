@@ -1,6 +1,4 @@
-#include "TestApp.h"
-#include <Core/Utils/Singleton.h>
-#include <Core/Engine/Engine.h>
+#include "TestbenchApp.h"
 
 TestbenchApp::TestbenchApp()
 	: Nui::AppBase(L"TestbenchApp", Nui::Window::Style::Windowed, { 1280, 720 })
@@ -10,7 +8,7 @@ TestbenchApp::TestbenchApp()
 
 TestbenchApp::~TestbenchApp()
 {
-	
+
 }
 
 void TestbenchApp::OnInit()

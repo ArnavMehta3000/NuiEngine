@@ -38,8 +38,8 @@ namespace Nui::Graphics
 	bool D3DManager::IsInitialized() const noexcept
 	{
 		// Return true if all objects are initialized
-		return m_device != nullptr 
-			&& m_immediateContext != nullptr 
+		return m_device != nullptr
+			&& m_immediateContext != nullptr
 			&& m_swapChain != nullptr;
 	}
 
@@ -111,49 +111,43 @@ namespace Nui::Graphics
 			return false;
 		}
 
-#if NUI_DEBUG
-		{  // Scoped so COM objects can be safely released
-			ComPtr<ID3D11Debug> d3dDebug;
-			if (SUCCEEDED(m_device.As(&d3dDebug)))
+#ifdef NUI_DEBUG  // Ref: https://walbourn.github.io/dxgi-debug-device/
+		ComPtr<ID3D11Debug> d3dDebug;
+		if (SUCCEEDED(m_device.As(&d3dDebug)))
+		{
+			ComPtr<ID3D11InfoQueue> d3dInfoQueue;
+			if (SUCCEEDED(d3dDebug.As(&d3dInfoQueue)))
 			{
-				ComPtr<ID3D11InfoQueue> d3dInfoQueue;
-				if (SUCCEEDED(d3dDebug.As(&d3dInfoQueue)))
+				d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+				d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
+				d3dInfoQueue->SetBreakOnCategory(D3D11_MESSAGE_CATEGORY_STATE_CREATION, FALSE);
+
+				D3D11_MESSAGE_ID hide[] =
 				{
-					// Treat warnings as errors
-					d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
-					d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-					d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
+					// Add more message IDs here as needed
+					D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
+				};
 
-					D3D11_MESSAGE_ID hide[] =
-					{
-						// Add more message IDs here as needed
-						D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
-					};
-
-					D3D11_INFO_QUEUE_FILTER filter = {};
-					filter.DenyList.NumIDs = _countof(hide);
-					filter.DenyList.pIDList = hide;
-					d3dInfoQueue->AddStorageFilterEntries(&filter);
-				}
+				D3D11_INFO_QUEUE_FILTER filter = {};
+				filter.DenyList.NumIDs = _countof(hide);
+				filter.DenyList.pIDList = hide;
+				d3dInfoQueue->AddStorageFilterEntries(&filter);
 			}
+		}
 
-			// Enabling DXGI debug layer
-			// Ref: https://walbourn.github.io/dxgi-debug-device/
+		ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
+		typedef HRESULT(WINAPI* LPDXGIGETDEBUGINTERFACE)(REFIID, void**);
 
-			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
-			typedef HRESULT(WINAPI* LPDXGIGETDEBUGINTERFACE)(REFIID, void**);
-			HMODULE dxgidebug = LoadLibraryEx(L"dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+		HMODULE dxgidebug = LoadLibraryEx(L"dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+		if (dxgidebug)
+		{
+			auto dxgiGetDebugInterface = reinterpret_cast<LPDXGIGETDEBUGINTERFACE>(
+				reinterpret_cast<void*>(GetProcAddress(dxgidebug, "DXGIGetDebugInterface")));
 
-			if (dxgidebug)
+			if (SUCCEEDED(dxgiGetDebugInterface(IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
 			{
-				auto dxgiGetDebugInterface = reinterpret_cast<LPDXGIGETDEBUGINTERFACE>(
-					reinterpret_cast<void*>(::GetProcAddress(dxgidebug, "DXGIGetDebugInterface")));
-
-				if (SUCCEEDED(dxgiGetDebugInterface(IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
-				{
-					dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
-					dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
-				}
+				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, TRUE);
+				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, TRUE);
 			}
 		}
 #endif // NUI_DEBUG
@@ -170,7 +164,7 @@ namespace Nui::Graphics
 		{
 			SafeReleaseCOM(m_bbTexture.ReleaseAndGetAddressOf());
 			SafeReleaseCOM(m_bbRTView.ReleaseAndGetAddressOf());
-			
+
 			m_immediateContext->ClearState();
 
 			// TODO: Handle fullscreen
@@ -200,7 +194,7 @@ namespace Nui::Graphics
 
 		// Look for an adapter that supports Direct3D 11
 		DXCall(m_factory->EnumAdapters1(0, m_adapter.ReleaseAndGetAddressOf()));
-		
+
 
 		// We'll just use the first output
 		DXCall(m_adapter->EnumOutputs(0, m_output.ReleaseAndGetAddressOf()));
