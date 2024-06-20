@@ -38,7 +38,7 @@ namespace Nui::Graphics
 		/**
 		 * @brief Presents the rendered image to the screen.
 		 */
-		void Present();
+		void Present() const;
 
 		/**
 		 * @brief Retrieves the Direct3D device.
@@ -118,6 +118,8 @@ namespace Nui::Graphics
 		 * @param height New height of the back buffer.
 		 */
 		void Resize(U32 width, U32 height) noexcept { m_backBufferWidth = width; m_backBufferHeight = height; }
+
+		inline void SetVSYNC(bool enableVSYNC) { m_vsync = enableVSYNC; }
 
 	private:
 		/**

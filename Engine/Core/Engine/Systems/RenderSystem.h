@@ -17,11 +17,6 @@ namespace Nui::Systems
 	{
 	public:
 		/**
-		 * @brief Virtual default destructor
-		 */
-		virtual ~RenderSystem() = default;
-
-		/**
 		 * @brief Initializes the system and subscribes to events
 		 * @param ctx Pointer to the ECS Context
 		 */
@@ -40,6 +35,7 @@ namespace Nui::Systems
 		 */
 		virtual void OnShutdown(ECS::Context* ctx) override;
 
+	private:
 		/**
 		 * @brief Called when a `Nui::Systems::Events::EndFrame` event is triggered
 		 * @details This function is called when a `Nui::Systems::Events::EndFrame` event is triggered at the end of the frame
@@ -47,5 +43,10 @@ namespace Nui::Systems
 		 * @param event Event data
 		 */
 		NUI_DECLARE_EVENT(Events::EndFrame);
+
+		/**
+		 * @brief This function is called at the end of the frame to present to the screen
+		 */
+		void OnEndFrame();
 	};
 }

@@ -52,6 +52,6 @@ namespace Nui
 
 	void World::OnShutdown()
 	{
-		Context::UnregisterSystem<Systems::TransformSystem>();
+		Context::UnregisterAllSystems();
 	}
 }

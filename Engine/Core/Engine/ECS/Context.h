@@ -94,6 +94,16 @@ namespace Nui::ECS
 		template <typename T>
 		void UnregisterSystem() requires IsSystem<T>;
 
+		/**
+		 * @brief Un-registers all systems from the ECS context
+		 */
+		void UnregisterAllSystems();
+
+		/**
+		 * @brief Gets a system from the ECS context
+		 * @tparam T Class derived from SystemBase
+		 * @return A pointer to the system
+		 */
 		template <typename T>
 		T* GetSystem() requires IsSystem<T>;
 
