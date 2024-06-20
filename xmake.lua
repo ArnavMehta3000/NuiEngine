@@ -7,7 +7,7 @@ set_xmakever("2.9.2")
 add_rules("mode.debug", "mode.release", "mode.releasedbg")
 set_allowedmodes("debug", "release", "releasedbg")
 
--- Platform and architecture
+-- Platform and architecture - only support x64 Windows
 set_allowedplats("windows")
 set_allowedarchs("windows|x64")
 
@@ -18,10 +18,13 @@ set_languages("c17", "cxx23")
 set_project(solution_name)
 set_version("0.0.1")
 
--- Generate clang compile commands
+-- Set default build mode
+set_defaultmode("debug")
+
+-- Generate clang compile commands on build
 -- add_rules("plugin.compile_commands.autoupdate")
 
--- Update generated visual studio project files
+-- Update generated visual studio project files on build
 -- add_rules("plugin.vsxmake.autoupdate")
 
 -- Add defines
@@ -29,33 +32,33 @@ add_defines("UNICODE")
 
 if is_mode("debug") then
 
-    -- add macros
+    -- Add macros
     add_defines("DEBUG", "NUI_DEBUG")
 
-    -- enable debug symbols
+    -- Enable debug symbols
     set_symbols("debug")
 
-    -- disable optimization
+    -- Disable optimization
     set_optimize("none")
 
 end
 
--- if the current compilation mode is release or profile?
+-- If the current compilation mode is release or debug?
 if is_mode("release", "releasedbg") then
     if is_mode("release") then
-   		-- add macros
+   		-- Add macros
         add_defines("RELEASE", "NUI_RELEASE", "NDEBUG")
 
-        -- mark symbols visibility as hidden
+        -- Mark symbols visibility as hidden
         set_symbols("hidden")
 
-        -- strip all symbols
+        -- Strip all symbols
         set_strip("all")
     else
-   		-- add macros
+   		-- Add macros
         add_defines("RELEASE", "NUI_RELEASE")
 
-        -- enable debug symbols
+        -- Enable debug symbols
         set_symbols("debug")
     end
 end
