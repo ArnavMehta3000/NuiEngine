@@ -21,7 +21,7 @@ jobs:
 
             - name: Generate CMakeLists.txt
               run: |
-                  xmake project -k cmakelists
+                  xmake project --file=./xmake.lua -k cmakelists
 
             - name: Commit and push changes
               run: |
