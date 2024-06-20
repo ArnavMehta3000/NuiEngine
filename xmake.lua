@@ -1,3 +1,5 @@
+local solution_name = "NuiTestbench"
+
 -- XMake version
 set_xmakever("2.9.2")
 
@@ -10,10 +12,10 @@ set_allowedplats("windows")
 set_allowedarchs("windows|x64")
 
 -- Set C/C++ language version
-set_languages("clatest", "cxxlatest")
+set_languages("c17", "cxx23")
 
 -- Project name and version
-set_project("NuiXmake")
+set_project(solution_name)
 set_version("0.0.1")
 
 -- Generate clang compile commands
@@ -49,10 +51,6 @@ if is_mode("release", "releasedbg") then
 
         -- strip all symbols
         set_strip("all")
-
-        -- fomit frame pointer
-        add_cxflags("-fomit-frame-pointer")
-        add_mxflags("-fomit-frame-pointer")
     else
    		-- add macros
         add_defines("RELEASE", "NUI_RELEASE")
