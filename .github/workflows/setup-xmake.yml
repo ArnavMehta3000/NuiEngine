@@ -21,8 +21,7 @@ jobs:
 
             - name: Generate CMakeLists.txt
               run: |
-                  cd ${GITHUB_WORKSPACE}
-                  echo Workspace: ${GITHUB_WORKSPACE}
+                  echo Workspace Directory: ${GITHUB_WORKSPACE}
                   xmake project --file=${GITHUB_WORKSPACE}/xmake.lua -k cmakelists
 
             - name: Commit and push changes
