@@ -7,7 +7,7 @@ on:
 
 jobs:
     generate-cmake:
-        runs-on: ubuntu-latest
+        runs-on: windows-latest
 
         steps:
             - name: Checkout repository
@@ -17,12 +17,11 @@ jobs:
               uses: xmake-io/github-action-setup-xmake@v1
               with:
                   xmake-version: latest
-                  actions-cache-folder: ".xmake-cache"
 
             - name: Generate CMakeLists.txt
               run: |
                   echo Workspace: ${GITHUB_WORKSPACE}
-                  xmake project --file=${GITHUB_WORKSPACE}/xmake.lua -k cmakelists
+                  xmake project --file=${GITHUB_WORKSPACE}/xmake.lua -k cmakelists -a "x64"
 
             - name: Commit and push changes
               run: |
