@@ -83,6 +83,12 @@ xmake project -k vsxmake2022
 
 Additional details on how to generate IDE files can be checked out on [Xmake's docs](https://xmake.io/#/plugin/builtin_plugins?id=generate-visualstudio-project)
 
+You can also change the solution file name by changing the `solution_name` variable at the top of the [root xmake.lua](./xmake.lua) file
+
+```lua
+local solution_name = "NuiTestbench"  -- Change this string to your liking
+```
+
 
 # Using The Engine / Creating a Project
 
@@ -111,6 +117,24 @@ This will print out the help message. Info on how to use this command will be at
 
 After creating a new project, you should have a folder in the root directory with you project name and some default template files. You may try to [build](#building-testbench-using-xmake) your project now
 
+## Allow Generation of CMakeLists.txt
+
+Currently CMakeLists.txt (for Testbench) is [automatically generated](#requirements) whenever the dev branch is merged onto the main branch. But it only happens when a file is changed in the `./Engine/` or `./Testbench/` directory. If you have forked the project and want the github action to run for your project as well (which will not be in the Testbench directory). You will have to make a small modification to the [xmake-to-cmake.yml](./.github/workflows/xmake-to-cmake.yml) workflow file.
+
+In the file make the following change
+
+```yml
+name: Generate CMakeLists.txt with xmake
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "Engine/**"
+            - "Testbench/**" # Change 'Testbench' this to your project name
+```
+
 # Project Roadmap
 
 The project roadmap will keep on expanding and changing as I keep working on the project. But it gives an overview as to what I may be working on at the moment
@@ -128,9 +152,19 @@ The project roadmap will keep on expanding and changing as I keep working on the
     - [x] Input
     - [x] Framework
   - [x] ECS
+  - [ ] Asset pipeline
+  - [x] Upgrade build system
+  - [x] Transform system
+  - [x] Render system
 - [ ] Graphics
-  - [ ] --- TBD ---
+  - [x] Initialize DX11
+  - [x] Support window resizing
+  - [ ] Renderer design
 - [ ] Audio
   - [ ] --- TBD ---
 - [ ] Test
   - [x] Window tests
+
+# Broken Tests
+
+Due to the build pipeline being changed from Premake5 to XMake, the Tests are not compiling and therefor not included when compiling the project. Although the source code for it still exists in the [Test directory](./Engine/Test/).
