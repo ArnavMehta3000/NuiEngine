@@ -4,34 +4,112 @@ Nui Engine is a simple editor-less, code-first focused game engine/framework wri
 
 # Documentation
 
-Nui Engine is documented using Doxygen (see Docs folder for Doxyfile). You can read the auto generated project documentation [here](https://arnavmehta3000.github.io/NuiEngine/).
+Nui Engine is documented using Doxygen using a [Doxyfile](./Docs/Doxygen/Doxyfile). You can read the auto generated project documentation [here](https://arnavmehta3000.github.io/NuiEngine/).
 
 # Requirements
 
-- Premake5 (included in repository)
-- Visual Studio 2022 (solution file generated using Premake)
-- Python (to create project files)
-- C++ 23
+Nui is written using C++23 and uses [Xmake](https://xmake.io/#/) as its build system (Lua based). You may also use the provided [CMakeLists.txt](./CMakeLists.txt) which is auto generated using a [Github Action](.github/workflows/xmake-to-cmake.yml) which is only up to date for the main branch. The project is currently configured to only run on **Windows x64**.
+
+# Building Testbench
+
+The engine comes with a sandbox project called `Testbench`. This is where I test the engine features. You may delete this project folder or keep it for reference purposes.
+
+> If you plan to keep the `Testbench` project, make sure to delete [`Testbench/xmake.lua`](./Testbench/xmake.lua) file or rename the file to something else so that it does not interfere with your custom project.
+
+## Building Testbench using Xmake
+
+Assuming you have Xmake installed, navigate to the root project directory and open a terminal.
+
+Run the `xmake` command to build the project
+
+```bash
+xmake
+```
+
+### Choosing a Build Configuration
+
+Optionally you may select a configuration to build for before running the above build command. 
+
+```bash
+xmake f -m <Config Mode>
+```
+
+Where `<Config Mode>` may be one of the following:
+- `debug`
+  - To build the debug config (default)
+- `release`
+  - To build the release config
+- `releasedbg`
+  - To build the release config with debug info
+
+After setting the build config, [build](#building-testbench-using-xmake) the project again. A build should be created in the `./build/` directory
+
+### Generating Compile Commands
+
+You may also wish to generate `compile_commands.json`. This can be done in two ways
+
+#### Using The Command Line
+
+See [xmake documentation](https://xmake.io/#/plugin/builtin_plugins?id=generate-compiler_commands) for more info.
+
+```bash
+xmake project -k compile_commands
+```
+
+#### Generate On Build
+
+If you want `compile_commands.json` to be built every time you build using xmake. Open the [xmake.lua](/xmake.lua) from the root directory and uncomment the following line.
+
+```lua
+-- Generate clang compile commands
+add_rules("plugin.compile_commands.autoupdate")
+```
+
+### Generate CMakeLists.txt
+
+To generate CMakeLists.txt file you can run the following command
+
+```bash
+xmake project -k cmakelists
+```
+
+### Generate IDE project files
+
+You can make use of xmake to generate IDE files such as visual studio solution files.
+
+```bash
+xmake project -k vsxmake2022
+```
+
+Additional details on how to generate IDE files can be checked out on [Xmake's docs](https://xmake.io/#/plugin/builtin_plugins?id=generate-visualstudio-project)
+
 
 # Using The Engine / Creating a Project
 
-- Clone/Fork the repository
-- Delete the `Testbench` folder _(it contains the sandbox project where I test the functionality of the engine. You may keep it for reference purposes)_
-- Create a project (follow below)
-  - Open commandline
-  - Navigate the `Scripts/` folder
-  - Run `CreateProject.py -projectname=<PrjName>`
-    - Where `PrjName` is the name of your project (and the solution file).
-    - The project name does not have to be quoted
-      - Usage example: `Scripts/CreateProject.py -projectname=MyGame`
-- In the root directory, you will see the generated visual studio solution file along with the game project folder.
-- Run `GenerateprojectFiles.bat` from the root whenever any files are added or removed from the engine/game
-- You may also delete the following from the `.gitignore` file so that you don't have to create a new project every single time. You can do so by navigating to the bottom of the gitignore file and deleting the marked lines:
-  - *.sln
-  - *.vcxproj
-  - *.vcxproj.filters
-  - premake5.lua
-- Build the solution using VS2022. The build output will be in the `<Root>/Build/<BuildConfig>/<ProjectName>/` directory
+Clone/Fork the repository
+```bash
+git clone https://github.com/ArnavMehta3000/NuiEngine.git
+```
+
+> Delete the included `Testbench` folder (if you choose to keep it: [**SEE THIS**](#building-testbench`))
+
+## Create a New Project
+
+To make a custom Nui Engine game project, we will make use of a [custom xmake action](./Scripts/xmake.lua).
+
+```bash
+xmake nui-create -p YOUR_PROJECT_NAME
+```
+
+To get additional information on how to use this command you may use the help flag
+
+```bash
+xmake nui-create -h
+```
+
+This will print out the help message. Info on how to use this command will be at the bottom of the message. _The first half of the message contains common command flags which can be ignored in this case_
+
+After creating a new project, you should have a folder in the root directory with you project name and some default template files. You may try to [build](#building-testbench-using-xmake) your project now
 
 # Project Roadmap
 
