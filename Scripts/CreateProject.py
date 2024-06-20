@@ -45,7 +45,7 @@ def parse_cmd_args():
 		parser = argparse.ArgumentParser(description="Get the project name")
 
 		# Add a command-line argument for the project name
-		parser.add_argument("-projectname", type=str, required=True, help="Name of the project")
+		parser.add_argument("-p", type=str, required=True, help="Name of the project")
 
 		# Parse the command-line arguments
 		args = parser.parse_args()
@@ -109,7 +109,7 @@ def create_solution():
 	return True
 
 if __name__ == "__main__":
-	
+
 	print("Parsing command-line arguments...")
 	if parse_cmd_args():
 		print("Creating project files...")
