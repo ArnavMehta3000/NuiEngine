@@ -4,7 +4,9 @@ on:
     push:
         branches:
             - main
-
+        paths:
+            - "Engine/**"
+            - "Testbench/**" # Change this to your project name
 jobs:
     generate-cmake:
         runs-on: windows-latest
@@ -20,7 +22,6 @@ jobs:
 
             - name: Generate CMakeLists.txt
               run: |
-                  echo Workspace: ${GITHUB_WORKSPACE}
                   xmake project --file=${GITHUB_WORKSPACE}/xmake.lua -k cmakelists -a "x64"
 
             - name: Commit and push changes
