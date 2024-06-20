@@ -13,15 +13,15 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            # - name: Set up xmake
-            #   uses: xmake-io/github-action-setup-xmake@v1
-            #   with:
-            #       xmake-version: latest
-            #       actions-cache-folder: ".xmake-cache"
+            - name: Set up xmake
+              uses: xmake-io/github-action-setup-xmake@v1
+              with:
+                  xmake-version: latest
+                  actions-cache-folder: ".xmake-cache"
 
             - name: Generate CMakeLists.txt
               run: |
-                  echo Workspace Directory: ${GITHUB_WORKSPACE}
+                  echo Workspace: ${GITHUB_WORKSPACE}
                   xmake project --file=${GITHUB_WORKSPACE}/xmake.lua -k cmakelists
 
             - name: Commit and push changes
