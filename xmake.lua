@@ -1,4 +1,4 @@
-local solution_name = "NuiTestbench"
+local solution_name = "Nui"
 
 -- XMake version
 set_xmakever("2.9.2")
