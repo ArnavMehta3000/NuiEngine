@@ -117,6 +117,14 @@ This will print out the help message. Info on how to use this command will be at
 
 After creating a new project, you should have a folder in the root directory with you project name and some default template files. You may try to [build](#building-testbench-using-xmake) your project now
 
+## Cleaning The Project
+
+To clean the project, use the `xmake clean` command
+
+```bash
+xmake clean -a
+```
+
 ## Allow Generation of CMakeLists.txt
 
 Currently CMakeLists.txt (for Testbench) is [automatically generated](#requirements) whenever the dev branch is merged onto the main branch. But it only happens when a file is changed in the `./Engine/` or `./Testbench/` directory. If you have forked the project and want the github action to run for your project as well (which will not be in the Testbench directory). You will have to make a small modification to the [xmake-to-cmake.yml](./.github/workflows/xmake-to-cmake.yml) workflow file.
@@ -167,4 +175,4 @@ The project roadmap will keep on expanding and changing as I keep working on the
 
 # Broken Tests
 
-Due to the build pipeline being changed from Premake5 to XMake, the Tests are not compiling and therefor not included when compiling the project. Although the source code for it still exists in the [Test directory](./Engine/Test/).
+Due to the build pipeline being changed from Premake5 to XMake, the Tests are not compiling and therefore not included when compiling the project. Although the source code for it still exists in the [Test directory](./Engine/Test/).
