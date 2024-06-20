@@ -17,7 +17,10 @@ set_project("NuiXmake")
 set_version("0.0.1")
 
 -- Generate clang compile commands
-add_rules("plugin.compile_commands.autoupdate")
+-- add_rules("plugin.compile_commands.autoupdate")
+
+-- Update generated visual studio project files
+-- add_rules("plugin.vsxmake.autoupdate")
 
 -- Add defines
 add_defines("UNICODE")
