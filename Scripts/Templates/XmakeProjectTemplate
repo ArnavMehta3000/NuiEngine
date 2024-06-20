@@ -1,4 +1,4 @@
-target("Testbench")
+target("%PROJECT_NAME%")
     set_default(true)
     set_kind("binary")
     add_files("**.cpp")

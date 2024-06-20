@@ -57,9 +57,6 @@ if is_mode("release", "releasedbg") then
         -- enable debug symbols
         set_symbols("debug")
     end
-
-    -- add vectorexts
-    add_vectorexts("sse2", "sse3", "ssse3", "mmx")
 end
 
 -- Include all xmake projects
