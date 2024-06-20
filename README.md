@@ -86,7 +86,7 @@ Additional details on how to generate IDE files can be checked out on [Xmake's d
 You can also change the solution file name by changing the `solution_name` variable at the top of the [root xmake.lua](./xmake.lua) file
 
 ```lua
-local solution_name = "NuiTestbench"  -- Change this string to your liking
+local solution_name = "Nui"  -- Change this string to your liking
 ```
 
 
