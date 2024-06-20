@@ -38,8 +38,8 @@ namespace Nui::Graphics
 	bool D3DManager::IsInitialized() const noexcept
 	{
 		// Return true if all objects are initialized
-		return m_device != nullptr 
-			&& m_immediateContext != nullptr 
+		return m_device != nullptr
+			&& m_immediateContext != nullptr
 			&& m_swapChain != nullptr;
 	}
 
@@ -164,7 +164,7 @@ namespace Nui::Graphics
 		{
 			SafeReleaseCOM(m_bbTexture.ReleaseAndGetAddressOf());
 			SafeReleaseCOM(m_bbRTView.ReleaseAndGetAddressOf());
-			
+
 			m_immediateContext->ClearState();
 
 			// TODO: Handle fullscreen
@@ -194,7 +194,7 @@ namespace Nui::Graphics
 
 		// Look for an adapter that supports Direct3D 11
 		DXCall(m_factory->EnumAdapters1(0, m_adapter.ReleaseAndGetAddressOf()));
-		
+
 
 		// We'll just use the first output
 		DXCall(m_adapter->EnumOutputs(0, m_output.ReleaseAndGetAddressOf()));
