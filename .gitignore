@@ -6,4 +6,5 @@ vsxmake2022/
 
 # Compiler
 compile_commands.json
+compile_flags.txt
 .cache/
