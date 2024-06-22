@@ -9,4 +9,12 @@ target("Testbench")
     add_deps("NuiCore", "NuiGraphics")
     add_linkorders("User32.lib", "NuiCore", "NuiGraphics")
     set_group("Games")
+
+    after_build(function (target)
+        -- Import task module
+        import("core.base.task")
+
+    	print("Packaging assets...")
+        task.run("nui-packassets", { project="Testbench" })
+    end)
 target_end()

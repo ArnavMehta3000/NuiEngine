@@ -115,6 +115,16 @@ function CreateApplicationCppFile()
     cprint("Created application cpp file: ${underline}%s", outputFilePath)
 end
 
+function CreateAssetsFolder()
+	-- Get asset directory
+	local assetDir = path.join(projectDir, "Assets")
+
+	-- Create assets folder
+	os.mkdir(assetDir)
+
+	cprint("Created assets directory: ${underline}%s", assetDir)
+end
+
 function main()
 	-- Get parameter content and display information
     projectName = option.get("project")
@@ -139,6 +149,9 @@ function main()
 
     -- Create <Project>App.h file
     CreateApplicationHeaderFile()
+
+    -- Create assets folder
+    CreateAssetsFolder()
 
     cprint("${green}Done")
 end

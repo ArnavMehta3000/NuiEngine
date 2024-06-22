@@ -1,6 +1,6 @@
 target("%PROJECT_NAME%")
     set_default(true)
-    set_kind("binary")
+    set_kind("windows")
     add_rules("win.sdk.application")
     add_files("**.cpp")
     add_headerfiles("**.h")
@@ -9,4 +9,12 @@ target("%PROJECT_NAME%")
     add_deps("NuiCore", "NuiGraphics")
     add_linkorders("User32.lib", "NuiCore", "NuiGraphics")
     set_group("Games")
+
+    after_build(function (target)
+        -- Import task module
+        import("core.base.task")
+
+    	print("Packaging assets...")
+        task.run("nui-packassets", { project="%PROJECT_NAME%" })
+    end)
 target_end()

@@ -9,7 +9,28 @@ task("nui-create")
         -- Settings menu usage
         usage = "xmake nui-project [project-name]",
         -- Setup menu description
-        description = "Create a new Nui game project",
+        description = "Create a new Nui project",
+
+        -- Set menu options, if there are no options, you can set it to {}
+        options =
+        {
+            -- Set kv as the key-value parameter and set the default value: black
+            {'p', "project", "kv", "NuiGame", "Set the project name." }
+        }
+    }
+task_end()
+
+task("nui-packassets")
+	set_category("action")
+	on_run("PackAssets")
+
+    -- Set the command line options for the plugin. There are no parameter options here, just the plugin description.
+    set_menu
+    {
+        -- Settings menu usage
+        usage = "xmake nui-packassets [project-name]",
+        -- Setup menu description
+        description = "Package assets for a Nui project",
 
         -- Set menu options, if there are no options, you can set it to {}
         options =
