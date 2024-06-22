@@ -3,9 +3,14 @@
 
 namespace Nui::Graphics
 {
+	static unsigned char g_shaderByteCode[] = {
+		#include "ShaderPS.hlsl.h"
+	};
+
 	void Init(HWND outputWindow)
 	{
 		Singleton<D3DManager>::Get().Init(outputWindow);
+		//OutputDebugStringA(std::string(reinterpret_cast<char*>(g_shaderByteCode)).c_str());
 	}
 
 	void Resize(U32 width, U32 height)
