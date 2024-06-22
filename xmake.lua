@@ -30,37 +30,12 @@ set_defaultmode("debug")
 -- Add defines
 add_defines("UNICODE")
 
-if is_mode("debug") then
-
-    -- Add macros
-    add_defines("DEBUG", "NUI_DEBUG")
-
-    -- Enable debug symbols
-    set_symbols("debug")
-
-    -- Disable optimization
-    set_optimize("none")
-
+if is_mode("debug", "releasedbg") then
+	add_defines("NUI_DEBUG")
 end
 
--- If the current compilation mode is release or debug?
-if is_mode("release", "releasedbg") then
-    if is_mode("release") then
-   		-- Add macros
-        add_defines("RELEASE", "NUI_RELEASE", "NDEBUG")
-
-        -- Mark symbols visibility as hidden
-        set_symbols("hidden")
-
-        -- Strip all symbols
-        set_strip("all")
-    else
-   		-- Add macros
-        add_defines("RELEASE", "NUI_RELEASE")
-
-        -- Enable debug symbols
-        set_symbols("debug")
-    end
+if is_mode("release") then
+    add_defines("NUI_RELEASE")
 end
 
 -- Include all xmake projects
