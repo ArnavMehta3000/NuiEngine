@@ -40,3 +40,47 @@ task("nui-packassets")
         }
     }
 task_end()
+
+task("nui-createdocs")
+	set_category("action")
+	on_run(function ()
+        print("Running Doxygen...")
+        
+        local doxyfilePath = path.join(os.projectdir(), "Docs", "Doxygen", "Doxyfile")
+        local outputPath = path.join("build", "Docs")
+
+        -- Copy project doxyfile to temp location
+        os.cp(doxyfilePath, os.tmpdir())
+        local tempDoxyfilePath = path.join(os.tmpdir(), "Doxyfile")
+
+        -- Check if copy was successful
+        if not os.isfile(tempDoxyfilePath) then
+            raise("Failed to copy Doxyfile to temp location: " .. tempDoxyfilePath)
+            return
+        end
+
+        -- Change output directory
+        local tempDoxyfile = io.open(tempDoxyfilePath, "a")
+        if tempDoxyfile then
+            tempDoxyfile:write("OUTPUT_DIRECTORY = " .. outputPath .. "\n")
+            tempDoxyfile:close()
+        end
+        
+        -- Run Doxygen
+        print("Using Doxyfile: " .. doxyfilePath)
+        os.run("doxygen " .. tempDoxyfilePath)
+        
+        cprint("Created documentation at: " .. outputPath)
+
+        cprint("${green}Done!")
+    end)
+
+    -- Set the command line options for the plugin. There are no parameter options here, just the plugin description.
+    set_menu
+    {
+        -- Settings menu usage
+        usage = "xmake nui-createdocs",
+        -- Setup menu description
+        description = "Use Doxygen to create documentation",
+    }
+task_end()
