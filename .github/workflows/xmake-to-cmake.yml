@@ -7,6 +7,8 @@ on:
         paths:
             - "Engine/**"
             - "Testbench/**" # Change this to your project name
+  workflow_dispatch:
+  
 jobs:
     generate-cmake:
         runs-on: windows-latest
