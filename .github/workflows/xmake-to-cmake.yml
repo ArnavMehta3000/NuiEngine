@@ -7,7 +7,7 @@ on:
         paths:
             - "Engine/**"
             - "Testbench/**" # Change this to your project name
-  workflow_dispatch:
+    workflow_dispatch:
   
 jobs:
     generate-cmake:
