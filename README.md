@@ -6,6 +6,8 @@ Nui Engine is a simple editor-less, code-first focused game engine/framework wri
 
 Nui Engine is documented using Doxygen using a [Doxyfile](./Docs/Doxygen/Doxyfile). You can read the auto generated project documentation [here](https://arnavmehta3000.github.io/NuiEngine/).
 
+[![Generate CMakeLists.txt with xmake](https://github.com/ArnavMehta3000/NuiEngine/actions/workflows/xmake-to-cmake.yml/badge.svg)](https://github.com/ArnavMehta3000/NuiEngine/actions/workflows/xmake-to-cmake.yml)
+
 # Requirements
 
 Nui is written using C++23 and uses [Xmake](https://xmake.io/#/) as its build system (Lua based). You may also use the provided [CMakeLists.txt](./CMakeLists.txt) which is auto generated using a [Github Action](.github/workflows/xmake-to-cmake.yml) which is only up to date for the main branch. The project is currently configured to only run on **Windows x64**.
