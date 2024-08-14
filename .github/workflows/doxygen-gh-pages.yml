@@ -6,6 +6,7 @@ on:
             - main
         paths:
             - "Engine/**" # Only trigger the workflow if files in the Engine directory are changed
+    workflow_dispatch:
 
 jobs:
     build-documentation:
