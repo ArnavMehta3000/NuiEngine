@@ -7,8 +7,8 @@ Nui Engine is a simple editor-less, code-first focused game engine/framework wri
 Nui Engine is documented using Doxygen using a [Doxyfile](./Docs/Doxygen/Doxyfile). You can read the auto generated project documentation [here](https://arnavmehta3000.github.io/NuiEngine/).
 
 [![Generate CMakeLists.txt with xmake](https://github.com/ArnavMehta3000/NuiEngine/actions/workflows/xmake-to-cmake.yml/badge.svg)](https://github.com/ArnavMehta3000/NuiEngine/actions/workflows/xmake-to-cmake.yml)<br>
-[![](https://tokei.rs/b1/github/ArnavMehta3000/NuiEngine?category=lines)](https://github.com/ArnavMehta3000/NuiEngine).
-[![](https://tokei.rs/b1/github/ArnavMehta3000/NuiEngine?category=code)](https://github.com/ArnavMehta3000/NuiEngine).
+[![](https://tokei.rs/b1/github/ArnavMehta3000/NuiEngine?category=lines)](https://github.com/ArnavMehta3000/NuiEngine)
+[![](https://tokei.rs/b1/github/ArnavMehta3000/NuiEngine?category=code)](https://github.com/ArnavMehta3000/NuiEngine)
 
 # Requirements
 
